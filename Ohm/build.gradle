@@ -1,0 +1,59 @@
+plugins {
+    id "java"
+    id "eclipse"
+    id "idea"
+    id "jaci.openrio.gradle.GradleRIO" version "2018.01.07"
+    id "java-library"
+    id "co.riiid.gradle" version "0.4.2"
+    id  "maven"
+}
+version  = '0.1.0'
+
+ext{
+	libName = 'ohm'
+}
+dependencies {
+    implementation wpilib()
+    implementation ctre()
+    implementation navx()
+    implementation fileTree(dir: 'lib', include: '*.jar')
+}
+task libJar(type: Jar) {
+	classifier = 'lib'
+	baseName = libName
+	manifest {
+		attributes('Implementation-Title' : libName,'Implementation-Version': project.version)
+	}
+}
+artifacts{
+	archives libJar
+}
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.4'
+}
+install {
+	repositories.mavenInstaller {
+		pom.project{
+			licenses{
+				license{
+					name 'The Apache Software License, Version 2.0'
+					url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+					distribution 'repo'
+				}
+			}
+		}
+	}
+	
+}
+github {
+	owner = 'ohmSuite'
+	token = 'b28e82c4ce5d290182a64c9ef4543975bfd0f4d7 '
+	repo = 'ohm'
+	tagName = project.version
+	targetCommitish = 'master'
+	name = 'v'+project.version
+	
+	assets = [
+		project.artifacts
+	]
+}

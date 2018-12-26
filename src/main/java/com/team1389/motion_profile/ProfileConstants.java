@@ -1,6 +1,6 @@
 package com.team1389.motion_profile;
 
-import com.team1389.control.MotionProfileController;
+import com.team1389.controllers.MotionProfileController;
 import com.team1389.hardware.inputs.software.RangeIn;
 import com.team1389.hardware.outputs.software.RangeOut;
 import com.team1389.hardware.value_types.Percent;

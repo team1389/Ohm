@@ -1,4 +1,4 @@
-package com.team1389.control;
+package com.team1389.controllers;
 
 import com.team1389.configuration.PIDConstants;
 import com.team1389.configuration.PIDInput;

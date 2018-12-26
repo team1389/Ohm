@@ -1,6 +1,6 @@
 package com.team1389.system.drive;
 
-import com.team1389.control.SynchronousPID;
+import com.team1389.controllers.SynchronousPID;
 import com.team1389.hardware.inputs.software.AngleIn;
 import com.team1389.hardware.value_types.Position;
 import com.team1389.hardware.value_types.Speed;
@@ -14,7 +14,6 @@ import com.team1389.watch.Watchable;
  * @author amind
  */
 public class VelocityHeadingSystem extends DriveSystem {
-	// TODO figure out how to use this drive algorithm
 	protected DriveOut<Speed> drive;
 	private AngleIn<Position> gyro;
 

@@ -1,4 +1,4 @@
-package com.team1389.control;
+package com.team1389.controllers;
 
 import com.team1389.util.RangeUtil;
 import com.team1389.util.list.FIFO;

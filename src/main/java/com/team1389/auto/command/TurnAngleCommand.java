@@ -2,7 +2,7 @@ package com.team1389.auto.command;
 
 import com.team1389.command_framework.command_base.Command;
 import com.team1389.configuration.PIDConstants;
-import com.team1389.control.SynchronousPIDController;
+import com.team1389.controllers.SynchronousPIDController;
 import com.team1389.hardware.inputs.software.AngleIn;
 import com.team1389.hardware.inputs.software.RangeIn;
 import com.team1389.hardware.outputs.software.RangeOut;

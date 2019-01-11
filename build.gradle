@@ -11,8 +11,9 @@ ext{
 	libName = 'ohm'
 }
 dependencies {
-    implementation wpilib()
-    implementation fileTree(dir: 'lib', include: '*.jar')
+    compile wpi.deps.wpilib()
+    compile wpi.deps.vendor.java()
+	implementation fileTree(dir: 'lib', include: '*.jar')
 }
 task libJar(type: Jar) {
 	classifier = 'lib'

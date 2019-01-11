@@ -1,6 +1,6 @@
 package com.team1389.hardware.registry.port_types;
 
-import edu.wpi.first.wpilibj.SensorBase;
+import edu.wpi.first.wpilibj.SendableBase;
 
 /**
  * represents a generic port

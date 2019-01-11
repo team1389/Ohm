@@ -28,9 +28,7 @@ task libJar(type: Jar) {
 artifacts{
 	archives libJar
 }
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.4'
-}
+
 install {
 	repositories.mavenInstaller {
 		pom.project{

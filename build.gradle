@@ -1,8 +1,6 @@
 plugins {
     id "java"
-    id "eclipse"
-    id "idea"
-    id "jaci.openrio.gradle.GradleRIO" version "2018.01.07"
+    id "edu.wpi.first.GradleRIO" version "2019.1.1"
     id "java-library"
     id "co.riiid.gradle" version "0.4.2"
     id  "maven"
@@ -14,8 +12,6 @@ ext{
 }
 dependencies {
     implementation wpilib()
-    implementation ctre()
-    implementation navx()
     implementation fileTree(dir: 'lib', include: '*.jar')
 }
 task libJar(type: Jar) {

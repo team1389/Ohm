@@ -35,11 +35,11 @@ public abstract class PortInstance {
 		/**
 		 * PWM port on the roborio
 		 */
-		PWM(SensorBase.kPwmChannels),
+		PWM(10),
 		/**
 		 * PCM port
 		 */
-		PCM(SensorBase.kSolenoidChannels),
+		PCM(8),
 		/**
 		 * port on the CAN bus
 		 */
@@ -47,11 +47,11 @@ public abstract class PortInstance {
 		/**
 		 * Analog port
 		 */
-		ANALOG(SensorBase.kAnalogInputChannels),
+		ANALOG(4),
 		/**
 		 * Digital Output port on the roborio
 		 */
-		DIO(SensorBase.kDigitalChannels),
+		DIO(10),
 		/**
 		 * USB port on the roborio
 		 */

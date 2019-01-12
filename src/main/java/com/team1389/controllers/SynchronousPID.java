@@ -4,7 +4,6 @@ import com.team1389.util.RangeUtil;
 import com.team1389.util.list.FIFO;
 
 import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.util.BoundaryException;
 
 /**
  * This class implements a PID Control Loop.
@@ -56,7 +55,7 @@ public class SynchronousPID {
 	 * @param Kd the derivative coefficient
 	 * @param Kf the feedforward coefficient (useful in speed mode)
 	 */
-	public SynchronousPID(double Kp, double Ki, double Kd, double Kf, PIDSourceType type) {
+	public SynchronousPID(double Kp, double Ki, double Kd, double Kf, PIDSourceType type){
 		this();
 		this.PIDType = type;
 		m_P = Kp;
@@ -74,7 +73,7 @@ public class SynchronousPID {
 	 * @param Ki the integral coefficient
 	 * @param Kd the derivative coefficient
 	 */
-	public SynchronousPID(double Kp, double Ki, double Kd, PIDSourceType type) {
+	public SynchronousPID(double Kp, double Ki, double Kd, PIDSourceType type){
 		this(Kp, Ki, Kd, 0, type);
 	}
 
@@ -232,9 +231,9 @@ public class SynchronousPID {
 	 * @param minimumInput the minimum value expected from the input
 	 * @param maximumInput the maximum value expected from the output
 	 */
-	public void setInputRange(double minimumInput, double maximumInput) {
+	public void setInputRange(double minimumInput, double maximumInput){
 		if (minimumInput > maximumInput) {
-			throw new BoundaryException("Lower bound is greater than upper bound");
+			throw new RuntimeException("Lower bound is greater than upper bound");
 		}
 		m_minimumInput = minimumInput;
 		m_maximumInput = maximumInput;
@@ -247,9 +246,10 @@ public class SynchronousPID {
 	 * @param minimumOutput the minimum value to write to the output
 	 * @param maximumOutput the maximum value to write to the output
 	 */
-	public void setOutputRange(double minimumOutput, double maximumOutput) {
+	public void setOutputRange(double minimumOutput, double maximumOutput){
+		
 		if (minimumOutput > maximumOutput) {
-			throw new BoundaryException("Lower bound is greater than upper bound");
+			throw new RuntimeException("Lower bound is greater than upper bound");
 		}
 		m_minimumOutput = minimumOutput;
 		m_maximumOutput = maximumOutput;

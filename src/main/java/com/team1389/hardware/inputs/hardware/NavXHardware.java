@@ -18,6 +18,8 @@ import com.team1389.watch.Watchable;
  * @author amind
  *
  */
+//TODO: Figure out why the NavX libraries don't register in VSCode (i.e. VSCode doesn't know it has access to navx libraries. Still builds & compiles)
+
 public class NavXHardware extends Hardware<SPIPort> {
 	Optional<AHRS> navX;
 

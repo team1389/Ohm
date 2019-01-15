@@ -101,8 +101,9 @@ public class CANTalonHardware extends Hardware<CAN>
 	public CANTalonHardware(boolean outInverted, CAN requestedPort, Registry registry,
 			Consumer<WPI_TalonSRX> initialConfig)
 	{
-		//FeedbackDevice.None doesn't exist because it's not implemented in the firmware
-		this(outInverted, false, FeedbackDevice.None, 0, requestedPort, registry, initialConfig);
+		//feedback device is set to Quad Encoder, which is factory default. 
+		//TODO: test what happens if we try and pull sensor stream from something without quad encoder plugged in
+		this(outInverted, false, FeedbackDevice.QuadEncoder, 0, requestedPort, registry, initialConfig);
 	}
 
 	public CANTalonHardware(boolean outInverted, CAN requestedPort, Registry registry)

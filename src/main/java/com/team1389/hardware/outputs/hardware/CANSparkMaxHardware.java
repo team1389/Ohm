@@ -55,13 +55,16 @@ public class CANSparkMaxHardware extends Hardware<CAN> {
 	 */
 	//TODO: Figure out how to configure spark from code end instead of manually via the client
 	public RangeIn<Position> getPositionStreamInRotations(){
-		//I don't think the range on a RangeIn matters. There's really no limit on an encoders range
+		// Min/Max in RangeIn don't matter. That's why the max is set to one. Doesn't cap off values
 		if(inInverted){
 			return new RangeIn<>(Position.class, () -> revSpark.map(spark -> -spark.getEncoder().getPosition()).orElse(0.0), 0, 1);
 		}
 		return new RangeIn<>(Position.class, () -> revSpark.map(spark -> spark.getEncoder().getPosition()).orElse(0.0), 0, 1);
 	}
 	
+	/**
+	 * runs if requested port is open
+	 */
     @Override
 	protected void init(CAN port) {
 		CANSparkMax spark;
@@ -81,6 +84,9 @@ public class CANSparkMaxHardware extends Hardware<CAN> {
 		revSpark = Optional.of(spark);
 	}
 
+	/**
+	 * runs if requested port is taken
+	 */
 	@Override
 	protected void failInit() {
 		revSpark = Optional.empty();

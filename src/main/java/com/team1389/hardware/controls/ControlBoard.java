@@ -51,36 +51,43 @@ public class ControlBoard
 		return driveController.throttle();
 	}
 
-	public DigitalIn driveModeBtn()
+	public DigitalIn driveThumbBtn()
 	{
 		return driveController.thumbButton().latched();
 	}
 
-	public DigitalIn driveModifierBtn()
+	public DigitalIn driveTriggerBtn()
 	{
 		return driveController.trigger();
 	}
 
-	public PercentIn xLeftDriveY()
-	{
+	public PercentIn xLeftDriveY() {
 		return xDriveController.leftStick.yAxis().invert();
 	}
 
+	public PercentIn xLeftDriveX() {
+		return xDriveController.leftStick.xAxis();
+	}
+
+	public PercentIn xRightDriveX() {
+		return xDriveController.rightStick.xAxis();
+	}
+
+	public PercentIn xRightDriveY() {
+		return xDriveController.rightStick.yAxis().invert();
+}
 	public PercentIn xDriveX()
 	{
 		return xDriveController.rightStick.xAxis();
 	}
-	public PercentIn xRightDriveY()
-	{
-		return xDriveController.rightStick.yAxis().invert();
-	}
 
-	public DigitalIn xDriveBtn()
+
+	public DigitalIn xRightBumper()
 	{
 		return xDriveController.rightBumper();
 	}
 	
-	public DigitalIn xDriveStraightButton()
+	public DigitalIn xLeftBumper()
 	{
 		return xDriveController.leftBumper();
 	}

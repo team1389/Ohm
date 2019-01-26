@@ -12,18 +12,28 @@ import com.team1389.hardware.value_types.Value;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 
+/**
+ * Provides streams for voltage & distance sensed by any IR analog distance sensor. 
+ */
 public class AnalogDistanceHardware extends Hardware<Analog>{
 
     private Optional<AnalogInput> wpiIR;  
     private Function<Double, Double> getDistInInches;
     private double samplesPerSecond;
     
+    /**
+     * 
+     * @param sensor Model of sensor being used
+     * @param requestedPort port to init this hardware on
+     * @param registry overarching registry object from robot project
+     */
     public AnalogDistanceHardware(SensorType sensor, Analog requestedPort, Registry registry){
         getDistInInches = sensor.getDistInInches;
         samplesPerSecond = sensor.samplesPerSecond;
         attachHardware(requestedPort, registry);
     }  
 
+    
     public enum SensorType{
         
         //Don't want to magic number this but I don't see a great other option
@@ -32,6 +42,11 @@ public class AnalogDistanceHardware extends Hardware<Analog>{
         private Function<Double, Double> getDistInInches;
         private double samplesPerSecond;
 
+        /**
+         * 
+         * @param getDistInInches function to apply to calculate distance given a voltage reading
+         * @param samplesPerSecond number of times to sample the port per second
+         */
         private SensorType(Function <Double,Double> getDistInInches, double samplesPerSecond){
             this.getDistInInches = getDistInInches;
             this.samplesPerSecond = samplesPerSecond;
@@ -42,7 +57,7 @@ public class AnalogDistanceHardware extends Hardware<Analog>{
         return new RangeIn<Position>(Position.class,() -> getDistInInches.apply(wpiIR.map(s -> s.getVoltage()).orElse(0.0)), 0, 1);
     }
 
-    public RangeIn<Value> getVoltage(){
+    public RangeIn<Value> getVoltageReading(){
         return new RangeIn<Value>(Value.class, () -> wpiIR.map(s -> s.getVoltage()).orElse(0.0), 0, 1);
     }
 

@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.AnalogInput;
 /**
  * Provides streams for voltage & distance sensed by any IR analog distance sensor. 
  */
+//TODO: what happens if you plug in two distance sensors which want different sample rates?
 public class AnalogDistanceHardware extends Hardware<Analog>{
 
     private Optional<AnalogInput> wpiIR;  
@@ -53,10 +54,17 @@ public class AnalogDistanceHardware extends Hardware<Analog>{
         }
     }
 
+    /**
+     * 
+     * @return a stream containing position reading from sensor
+     */
     public RangeIn<Position> getPositionInInches(){
         return new RangeIn<Position>(Position.class,() -> getDistInInches.apply(wpiIR.map(s -> s.getVoltage()).orElse(0.0)), 0, 1);
     }
 
+    /**
+     * @return a stream containing raw voltage reading from sensor
+     */
     public RangeIn<Value> getVoltageReading(){
         return new RangeIn<Value>(Value.class, () -> wpiIR.map(s -> s.getVoltage()).orElse(0.0), 0, 1);
     }

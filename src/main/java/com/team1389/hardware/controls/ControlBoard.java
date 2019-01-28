@@ -33,7 +33,7 @@ public class ControlBoard
 
 	public PercentIn driveYAxis()
 	{
-		return driveController.yAxis().applyDeadband(.075).invert();
+		return driveController.yAxis().applyDeadband(.075).getInverted();
 	}
 
 	public PercentIn driveXAxis()
@@ -62,7 +62,7 @@ public class ControlBoard
 	}
 
 	public PercentIn xLeftDriveY() {
-		return xDriveController.leftStick.yAxis().invert();
+		return xDriveController.leftStick.yAxis().getInverted();
 	}
 
 	public PercentIn xLeftDriveX() {
@@ -74,7 +74,7 @@ public class ControlBoard
 	}
 
 	public PercentIn xRightDriveY() {
-		return xDriveController.rightStick.yAxis().invert();
+		return xDriveController.rightStick.yAxis().getInverted();
 }
 	public PercentIn xDriveX()
 	{

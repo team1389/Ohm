@@ -34,7 +34,7 @@ public class OctocanumSystem extends DriveSystem
 		this.octoShifter = octoShifter;
 		this.switchModes = switchModes;
 		setupTankDriveSystem(voltageDrive.getAsTank(), xAxis, yAxis, trim, trigger);
-		setupMecanumDriveSystem(voltageDrive, xAxis, yAxis.copy().invert(), twist, trigger, gyro);
+		setupMecanumDriveSystem(voltageDrive, xAxis, yAxis.copy().getInverted(), twist, trigger, gyro);
 	}
 
 	private void setupTankDriveSystem(DriveOut<Percent> drive, PercentIn xAxis, PercentIn yAxis, PercentIn trim,

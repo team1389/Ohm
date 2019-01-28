@@ -145,7 +145,7 @@ public class RangeIn<T extends Value> {
 	}
 
 	/**
-	 * maps this range to an angle stream (it converts any value it recieves to an
+	 * maps a copy of this stream to an angle stream (it converts any value it recieves to an
 	 * angle before passing it upstream<br>
 	 * the parameter {@code type} here is to work around java's type erasure. pass
 	 * it the same class as the Range type, i.e. for an AngleIn{@literal<Position>},
@@ -153,78 +153,72 @@ public class RangeIn<T extends Value> {
 	 * 
 	 * @param type
 	 *            the angle value type
-	 * @return the mapped range
+	 * @return copy of this stream mapped to angles
 	 * 
 	 */
-	public <V extends PIDTunableValue> AngleIn<V> mapToAngle(Class<V> type) {
-		return new AngleIn<V>(convertRange(type));
+	public <V extends PIDTunableValue> AngleIn<V> getAsAngle(Class<V> type) {
+		return new AngleIn<V>(getConvertedCopy(type));
+	}
+
+	public <R extends RangeIn<T>> R getReversed() {
+		return cast(getMappedToRange(max, min).getWithSetRange(max, min));
 	}
 
 	/**
-	 * 
-	 */
-	public <R extends RangeIn<T>> R reverse() {
-		mapToRange(max, min);
-		setRange(max, min);
-		return cast();
-	}
-
-	/**
-	 * maps this stream to a percent stream (it converts any value it recieves to a
+	 * maps a copy of this stream to a percent stream (it converts any value it recieves to a
 	 * percentage before passing it upstream)
 	 * 
-	 * @return the new stream that is this stream mapped to the aforementioned range
+	 * @return a copy of this stream mapped to the aforementioned range
 	 */
 
-	public PercentIn mapToPercentIn() {
-		return new PercentIn(this);
+	public PercentIn getAsPercentIn() {
+		return new PercentIn(this.copy());
 	}
 
 	@SuppressWarnings("unchecked")
-	private <R extends RangeIn<T>> R cast() {
-		return (R) this;
+	private <R extends RangeIn<T>> R cast(RangeIn<T> streamToCast) {
+		return (R) streamToCast;
 	}
 
 	/**
-	 * sets the range of this stream <br>
-	 * <em>NOTE</em>: Unlike {@link RangeIn#mapToRange(double, double) mapToRange},
+	 * creates a copy of this stream with specified range <br>
+	 * <em>NOTE</em>: Unlike {@link RangeIn#getMappedToRange(double, double) mapToRange},
 	 * this operation does not affect the values in the stream, only the range.
 	 * 
 	 * @param min
 	 *            value to set as min
 	 * @param max
 	 *            value to set as max
-	 * @return this stream but with a new min and max * @param min
+	 * @return a copy of this stream but with a new min and max 
 	 */
-	public RangeIn<T> setRange(double min, double max) {
-		addOperation(d -> " -> setRange[" + min + "," + max + "] = " + d);
-		this.min = min;
-		this.max = max;
-		return this;
+	public RangeIn<T> getWithSetRange(double min, double max) {
+		RangeIn<T> newStream = new RangeIn<>(type, input, min, max);
+		newStream.addOperation(d -> " -> setRange[" + min + "," + max + "] = " + d);
+		return newStream;
 	}
 
 	/**
-	 * Maps the stream to a given range, setting a new min and max, and adjusting
+	 * Maps a copy of the stream to a given range, setting a new min and max, and adjusting
 	 * the stream values to compensate. <br>
 	 * Can be used to reverse the stream values as explained in
 	 * {@link com.team1389.util.RangeUtil#map(double, double, double, double, double)
 	 * RangeUtil.map}
 	 * 
 	 * @param min
-	 *            of stream being operated on
+	 *            Min value of new desired range
 	 * @param max
-	 *            of stream being operated on
+	 *            Max value of new desired range
 	 * @return new stream mapped to given range
 	 */
-	public RangeIn<T> mapToRange(double min, double max) {
-		return adjustRange(this.min, this.max, min, max);
+	public RangeIn<T> getMappedToRange(double min, double max) {
+		return getAdjustedToRange(this.min, this.max, min, max);
 	}
 
 	/**
-	 * Maps the stream from the given range to another range, setting a new min and
+	 * Maps copy of this stream from the given range to another range, setting a new min and
 	 * max, and adjusting the stream values to compensate. <br>
-	 * This is the equivalent of calling {@link RangeIn#setRange(oldMin, oldMax)},
-	 * then {@link RangeIn#mapToRange(min, max)} Can be used to reverse the stream
+	 * This is the equivalent of calling {@link RangeIn#getWithRange(oldMin, oldMax)},
+	 * then {@link RangeIn#getMappedToRange(min, max)} Can be used to reverse the stream
 	 * values as explained in
 	 * {@link com.team1389.util.RangeUtil#map(double, double, double, double, double)
 	 * RangeUtil.map}
@@ -240,81 +234,83 @@ public class RangeIn<T extends Value> {
 	 *            of stream being operated on
 	 * @return new stream mapped to given range
 	 */
-	public RangeIn<T> adjustRange(double oldMin, double oldMax, double min, double max) {
-		input = ScalarInput.mapToRange(input, oldMin, oldMax, min, max);
-		addOperation(d -> "-> map from [" + oldMin + "," + oldMax + "] to [" + min + "," + max + "] = " + d);
-		this.min = min;
-		this.max = max;
-		return this;
+	public RangeIn<T> getAdjustedToRange(double oldMin, double oldMax, double min, double max) {
+		ScalarInput<T> newInput = ScalarInput.mapToRange(input, oldMin, oldMax, min, max);
+		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		newStream.addOperation(d -> "-> map from [" + oldMin + "," + oldMax + "] to [" + min + "," + max + "] = " + d);
+		return newStream;
 	}
 
 	/**
-	 * adds a listener to the stream which will perform the given action when the
+	 * adds a listener to a copy of this stream which will perform the given action when the
 	 * stream's value changes <br>
 	 * <em>NOTE</em>: The stream only registers changes when its
 	 * {@link RangeIn#get() get()} method is called periodically.
 	 * 
 	 * @param onChange
 	 *            the action to perform when the stream value changes
-	 * @return the stream with listener attached
+	 * @return copy of this stream with listener attached
 	 */
-	public <R extends RangeIn<T>> R addChangeListener(Consumer<Double> onChange) {
+	public <R extends RangeIn<T>> R getWithChangeListener(Consumer<Double> onChange) {
 		ListeningScalarInput<T> listeningInput = ScalarInput.getListeningInput(input, onChange);
-		input = listeningInput;
-		return cast();
+		RangeIn<T> newStream = new RangeIn<>(type, listeningInput, min, max);
+		return cast(newStream);
 	}
 
 	/**
-	 * causes the stream to replace the value of anything in the deadzone with 0.0
+	 * creates copy of this stream to replace the value of anything in the deadzone with 0.0
 	 * 
 	 * @param deadband
 	 *            the max distance from 0 (deadzone)
-	 * @return stream with deadband of {@code deadband}
+	 * @return copy of this stream with deadband of {@code deadband}
 	 */
 	public <R extends RangeIn<T>> R applyDeadband(double deadband) {
-		input = ScalarInput.applyDeadband(input, deadband);
-		addOperation(d -> " -> deadband[" + deadband + "] = " + d);
-		return cast();
+		ScalarInput<T> newInput = ScalarInput.applyDeadband(input, deadband);
+		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		newStream.addOperation(d -> " -> deadband[" + deadband + "] = " + d);
+		return cast(newStream);
 	}
 
 	/**
-	 * Inverts the stream values: {@code val=-val}.<br>
+	 * copies this stream and inverts it's values: {@code val=-val}.<br>
 	 * To <b>reverse</b> the stream, use the
-	 * {@link RangeIn#mapToRange(double, double) map} function
+	 * {@link RangeIn#getMappedToRange(double, double) map} function
 	 * 
-	 * @return the inverted stream
+	 * @return a copy of this stream, but inverted
 	 */
-	public <R extends RangeIn<T>> R invert() {
-		input = ScalarInput.invert(input);
-		addOperation(d -> " -> invert = " + d);
-		return cast();
+	public <R extends RangeIn<T>> R getInverted() {
+		ScalarInput<T> newInput = ScalarInput.invert(input);
+		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		newStream.addOperation(d -> " -> invert = " + d);
+		return cast(newStream);
 	}
 
 	/**
-	 * scales the stream values by the given factor
+	 * scales values from a copy of this stream by the given factor
 	 * 
 	 * @param factor
 	 *            the factor to scale by
-	 * @return the scaled stream
+	 * @return copy of this but scaled 
 	 */
-	public <R extends RangeIn<T>> R scale(double factor) {
-		ScalarInput<T> in = input;
-		input = ScalarInput.scale(input, factor);
-		addOperation(d -> " -> scale[" + in.get() + "*" + factor + "] = " + d);
-		max *= factor;
-		min *= factor;
-		return cast();
+	public <R extends RangeIn<T>> R getScaled(double factor) {
+		ScalarInput<T> newInput = ScalarInput.scale(input, factor);
+		addOperation(d -> " -> scale[" + input.get() + "*" + factor + "] = " + d);
+		double newMax = max *factor; 
+		double newMin = min * factor; 
+		RangeIn<T> newStream = new RangeIn<>(type, newInput, newMin, newMax);
+		return cast(newStream);
 	}
 
 	/**
-	 * wraps values outside the stream range in through the other side.
+	 * wraps values outside the stream range in through the other side (i.e. if val goes over max, wraps around to min & vice versa). 
 	 * 
 	 * @return the wrapped stream
 	 */
 	public <R extends RangeIn<T>> R getWrapped() {
-		input = ScalarInput.getWrapped(input, min(), max());
-		addOperation(d -> " -> wrap[" + min + "," + max + "] = " + d);
-		return cast();
+		ScalarInput<T> newInput = ScalarInput.getWrapped(input, min(), max());
+		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		newStream.addOperation(d -> " -> wrap[" + min + "," + max + "] = " + d);
+		return cast(newStream);
 	}
 
 	/**
@@ -326,17 +322,17 @@ public class RangeIn<T extends Value> {
 	 * @return the combined stream
 	 */
 	public <R extends RangeIn<T>> R sumInputs(RangeIn<T> rngIn) {
-		ScalarInput<T> in = input;
-		input = ScalarInput.sum(input, rngIn.input);
-		addOperation(d -> " -> sum[" + in.get() + "+" + rngIn.get() + "] = " + d);
-		return cast();
+		ScalarInput<T> newInput = ScalarInput.sum(input, rngIn.input);
+		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		newStream.addOperation(d -> " -> sum[" + input.get() + "+" + rngIn.get() + "] = " + d);
+		return cast(newStream);
 	}
 
 	public <R extends RangeIn<T>> R offset(double val) {
-		ScalarInput<T> in = input;
-		input = () -> in.get() + val;
-		addOperation(d -> " -> sum[" + in.get() + "+" + val + "] = " + d);
-		return cast();
+		ScalarInput<T> newInput = () -> input.get() + val;
+		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		newStream.addOperation(d -> " -> sum[" + input.get() + "+" + val + "] = " + d);
+		return cast(newStream);
 	}
 
 	public <R extends RangeIn<T>> R adjustOffsetToMatch(double makeCurrentVal) {
@@ -373,9 +369,10 @@ public class RangeIn<T extends Value> {
 	 * @return new stream that is limited to a range
 	 */
 	public <R extends RangeIn<T>> R limit(double min, double max) {
-		input = ScalarInput.limitRange(input, min, max);
-		addOperation(d -> " -> limit[" + min + "," + max + "] = " + d);
-		return cast();
+		ScalarInput<T> newInput = ScalarInput.limitRange(input, min, max);
+		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		newStream.addOperation(d -> " -> limit[" + min + "," + max + "] = " + d);
+		return cast(newStream);
 	}
 
 	/**
@@ -386,7 +383,7 @@ public class RangeIn<T extends Value> {
 	 * 
 	 * @return a new stream with the same values but the new type
 	 */
-	private <N extends Value> RangeIn<N> convertRange(Class<N> type) {
+	private <N extends Value> RangeIn<N>getConvertedCopy(Class<N> type) {
 		return new RangeIn<N>(type, input, min, max);
 	}
 
@@ -423,8 +420,9 @@ public class RangeIn<T extends Value> {
 	 * @return the mapped stream
 	 */
 	public <R extends RangeIn<T>> R map(UnaryOperator<Double> operation) {
-		input = ScalarInput.map(input, operation);
-		return cast();
+		ScalarInput<T> newInput = ScalarInput.map(input, operation);
+		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		return cast(newStream);
 	}
 
 	@Override

@@ -27,6 +27,7 @@ import com.team1389.watch.input.listener.NumberInput;
 public class RangeOut<T extends Value> implements ScalarInput<T> {
 	private double lastVal;
 	protected ScalarOutput<T> output;
+	private Supplier<String> operations;
 	protected double min, max;
 
 	/**
@@ -116,6 +117,10 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 * @return the new stream that is a copy of this stream mapped to the aforementioned range
 	 */
 	public PercentOut getAsPercentOut() {
+		RangeOut<T> newStream = this.copy();
+		double oldMin = min;
+		double oldMax = max;
+		newStream.addOperation(d -> "-> map[percent]:[" + oldMin + "," + oldMax + "]" + " = " + d);
 		return new PercentOut(this.copy());
 	}
 
@@ -126,6 +131,10 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 * @return the new stream that is a copy of this stream mapped to the aforementioned range
 	 */
 	public <V extends PIDTunableValue> AngleOut<V> getAsAngle() {
+		RangeOut<T> newStream = getConvertedCopy();
+		double oldMin = min;
+		double oldMax = max;
+		newStream.addOperation(d -> "-> map[degrees]:[" + oldMin + "," + oldMax + "]" + " = " + d);
 		return new AngleOut<V>(getConvertedCopy());
 	}
 
@@ -138,8 +147,11 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 * @return copy of this stream mapped to given range
 	 */
 	public <R extends RangeOut<T>> R getMappedToRange(double min, double max) {
-		ScalarOutput<T> newOutput = ScalarOutput.mapToRange(output, min, max, this.min, this.max);
+		double oldMin = this.min;
+		double oldMax = this.max;
+		ScalarOutput<T> newOutput = ScalarOutput.mapToRange(output, min, max, oldMin, oldMax);
 		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.	addOperation(d -> "-> map[" + min + "," + max + "]:[" + oldMin + "," + oldMax + "]" + " = " + d);
 		return cast(newStream);
 	}
 
@@ -152,14 +164,15 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 
 		ScalarOutput<T> newOutput = ScalarOutput.invert(output);
 		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> invert = " + d);
 		return cast(newStream);
 	}
 
 	/**
 	 * Maps a copy of this stream from the given range to another range, setting a new min and max, and
 	 * adjusting the stream values to compensate. <br>
-	 * This is the equivalent of calling {@link RangeIn#setRange(oldMin, oldMax)}, then
-	 * {@link RangeIn#mapToRange(min, max)} Can be used to reverse the stream values as explained in
+	 * This is the equivalent of calling {@link RangeIn#getWithSetRange(oldMin, oldMax)}, then
+	 * {@link RangeIn#getMappedToRange(min, max)} Can be used to reverse the stream values as explained in
 	 * {@link com.team1389.util.RangeUtil#map(double, double, double, double, double) RangeUtil.map}
 	 * 
 	 * @see RangeIn#mapToRange(double, double) mapToRange
@@ -171,7 +184,9 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 */
 	public RangeOut<T> getAdjustedToRange(double oldMin, double oldMax, double min, double max) {
 		ScalarOutput<T> newOutput = ScalarOutput.mapToRange(output, oldMin, oldMax, min, max);
-		return new RangeOut<T>(newOutput, min, max);
+		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> map from [" + oldMin + "," + oldMax + "] to [" + min + "," + max + "] = " + d);
+		return newStream;
 	}
 
 	/**
@@ -183,7 +198,9 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 */
 	public <R extends RangeOut<T>> R getProfiledOut(double maxChange, double initialPos) {
 		ScalarOutput<T> newOutput = new ProfiledRangeOut<T>(output, min, max, maxChange, initialPos);
-		return cast(new RangeOut<T>(newOutput, min, max));
+		RangeOut<T> newStream =  new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> profile[" + maxChange + "] = " + d);
+		return cast(newStream);
 	}
 
 	/**
@@ -233,7 +250,9 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 */
 	public <R extends RangeOut<T>> R getWithDeadband(double deadband) {
 		ScalarOutput<T> newOutput = ScalarOutput.applyDeadband(output, deadband);
-		return cast(new RangeOut<T>(newOutput, min, max));
+		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> deadband[" + deadband + "] = " + d);
+		return cast(newStream);
 	}
 
 	/**
@@ -264,7 +283,9 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 */
 	public <R extends RangeOut<T>> R getLimited(double min, double max) {
 		ScalarOutput<T> newOutput = ScalarOutput.limit(output, min, max);
-		return cast(new RangeOut<T>(newOutput, min, max));
+		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> limit[" + min + "," + max + "] = " + d);
+		return cast(newStream);
 	}
 
 	/**
@@ -311,7 +332,7 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 
 	/**
 	 * creates a copy of this stream with a new min and max value <br>
-	 * <em>NOTE</em>: Unlike {@link RangeOut#mapToRange(double, double) mapToRange}, this operation
+	 * <em>NOTE</em>: Unlike {@link RangeOut#getMappedToRange(double, double) mapToRange}, this operation
 	 * does not affect the values in the stream, only the range.
 	 * 
 	 * @param min value to set as min
@@ -335,6 +356,13 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 		return new RangeOut<T>(newOutput, min, max);
 	}
 
+	private void addOperation(Function<String, String> operation) {
+		ListeningOutput<Double> lastVal = new ListeningOutput<Double>(output, k -> {
+		}, 0.0);
+		this.output = lastVal::accept;
+		Supplier<String> oldOperations = operations;
+		operations = () -> operation.apply(DisplayDouble.get(lastVal.getLatestVal(), 7)) + oldOperations.get();
+	}
 	public String toString() {
 		return "Last applied value: " + lastVal;
 	}

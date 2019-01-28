@@ -51,7 +51,7 @@ public class ServoHardware extends Hardware<PWM> {
 	 * @return an input stream of servo angle (in degrees)
 	 */
 	public AngleIn<Position> getAngleInput() {
-		return getPositionInput().mapToRange(0, 180).setRange(0, 360).mapToAngle(Position.class);
+		return getPositionInput().getMappedToRange(0, 180).getWithSetRange(0, 360).getAsAngle(Position.class);
 	}
 
 	/**

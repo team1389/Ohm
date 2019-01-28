@@ -66,8 +66,8 @@ public class DriveOut<T extends Value> extends Pair<RangeOut<T>, RangeOut<T>> im
 		return new AddList<Watchable>().put(left().getWatchable("left")).put(right().getWatchable("right"));
 	}
 
-	public DriveOut<T> invert() {
-		return forBoth(r -> r.invert());
+	public DriveOut<T> getInverted() {
+		return forBoth(r -> r.getInverted());
 	}
 
 	public DriveOut<T> copy() {

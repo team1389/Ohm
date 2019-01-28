@@ -58,7 +58,7 @@ public class ServoHardware extends Hardware<PWM> {
 	 * @return an output stream that controls the angle of the servo
 	 */
 	public AngleOut<Position> getAngleOutput() {
-		return getPositionOutput().mapToRange(0, 180).clamp().setRange(0, 360).mapToAngle();
+		return getPositionOutput().getMappedToRange(0, 180).getClamped().getWithSetRange(0, 360).getAsAngle();
 	}
 
 	@Override

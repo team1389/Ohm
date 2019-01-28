@@ -46,22 +46,21 @@ public class DigitalOut implements BooleanSupplier {
 	 * 
 	 * @return this stream but inverted
 	 */
-	public DigitalOut invert() {
-		this.out = BinaryOutput.invert(out);
-		return this;
+	public DigitalOut getInverted() {
+		BinaryOutput newOutput = BinaryOutput.invert(out);
+		return new DigitalOut(newOutput);
 	}
 
 	/**
 	 * adds the given digital out streams as followers of this stream
 	 * @return this stream with a relay to the given followers
 	 */
-	public DigitalOut addFollowers(DigitalOut... follows) {
-		BinaryOutput out = this.out;
-		this.out = val -> {
+	public DigitalOut getWithAddedFollowers(DigitalOut... follows) {
+		BinaryOutput newOutput  = val -> {
 			out.set(val);
 			Arrays.stream(follows).forEach(d -> d.set(val));
 		};
-		return this;
+		return new DigitalOut(newOutput);
 
 	}
 
@@ -80,9 +79,9 @@ public class DigitalOut implements BooleanSupplier {
 	 * @param operation the unary operation (takes a boolean value returns a mapped value)
 	 * @return the mapped stream
 	 */
-	public DigitalOut map(UnaryOperator<Boolean> operation) {
-		this.out = BinaryOutput.map(out, operation);
-		return this;
+	public DigitalOut getMapped(UnaryOperator<Boolean> operation) {
+		BinaryOutput newOut = BinaryOutput.map(out, operation);
+		return new DigitalOut(newOut);
 	}
 
 	/**

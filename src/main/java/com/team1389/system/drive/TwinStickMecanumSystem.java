@@ -32,7 +32,7 @@ public class TwinStickMecanumSystem extends Subsystem {
 
 	@Override
 	public AddList<Watchable> getSubWatchables(AddList<Watchable> stem) {
-		return stem.put(yInput.getWatchable("left stick y"), turnInput.getWatchable("turnInput"), drive);
+		return stem.put(yInput.getWatchable("forward-back movement input"), xInput.getWatchable("horizontal movement input"), turnInput.getWatchable("turn input"), drive);
 	}
 
 	@Override

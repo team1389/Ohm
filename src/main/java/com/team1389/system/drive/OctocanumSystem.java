@@ -42,8 +42,8 @@ public class OctocanumSystem extends DriveSystem
 	{
 		BezierCurve xCurve = new BezierCurve(0, .5, .79, -0.06);
 		BezierCurve yCurve = new BezierCurve(.0, 0.54, 0.45, -0.07);
-		xAxis.map(d -> xCurve.getPoint(d).getY());
-		yAxis.map(d -> yCurve.getPoint(d).getY());
+		xAxis = xAxis.getMapped(d -> xCurve.getPoint(d).getY());
+		yAxis = yAxis.getMapped(d -> yCurve.getPoint(d).getY());
 		tank = new CurvatureDriveSystem(drive, yAxis, xAxis, quickTurn, ControlBoard.turnSensitivity,
 				ControlBoard.spinSensitivity);
 	}

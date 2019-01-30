@@ -8,10 +8,11 @@ import edu.wpi.first.wpilibj.PIDSourceType;
 /**
  * This class implements a PID Control Loop.
  * 
- * Does all computation synchronously (i.e. the calculate() function must be called by the user from
- * his own thread)
+ * Does all computation synchronously (i.e. the calculate() function must be
+ * called by the user from his own thread)
  */
-public class SynchronousPID {
+public class SynchronousPID
+{
 	private static final int DEFAULT_ERROR_QUE_SIZE = 100;
 	protected PIDSourceType PIDType;
 	private double m_P; // factor for "proportional" control
@@ -43,63 +44,84 @@ public class SynchronousPID {
 	/**
 	 * initializes the PID controller
 	 */
-	public SynchronousPID() {
+	public SynchronousPID()
+	{
 		m_avgError = new FIFO<>(DEFAULT_ERROR_QUE_SIZE);
 	}
 
 	/**
 	 * Allocate a PID object with the given constants for P, I, D
 	 *
-	 * @param Kp the proportional coefficient
-	 * @param Ki the integral coefficient
-	 * @param Kd the derivative coefficient
-	 * @param Kf the feedforward coefficient (useful in speed mode)
+	 * @param Kp
+	 *               the proportional coefficient
+	 * @param Ki
+	 *               the integral coefficient
+	 * @param Kd
+	 *               the derivative coefficient
+	 * @param Kf
+	 *               the feedforward coefficient (useful in speed mode)
 	 */
-	public SynchronousPID(double Kp, double Ki, double Kd, double Kf, PIDSourceType type){
+	public SynchronousPID(double Kp, double Ki, double Kd, double Kf, PIDSourceType type)
+	{
 		this();
 		this.PIDType = type;
 		m_P = Kp;
 		m_I = Ki;
 		m_D = Kd;
 		m_F = Kf;
-		this.setInputRange(-Double.MAX_VALUE,Double.MAX_VALUE);
-		this.setInputRange(-Double.MAX_VALUE,Double.MAX_VALUE);
+		this.setInputRange(-Double.MAX_VALUE, Double.MAX_VALUE);
+		this.setInputRange(-Double.MAX_VALUE, Double.MAX_VALUE);
 	}
 
 	/**
 	 * Allocate a PID object with the given constants for P, I, D
 	 *
-	 * @param Kp the proportional coefficient
-	 * @param Ki the integral coefficient
-	 * @param Kd the derivative coefficient
+	 * @param Kp
+	 *               the proportional coefficient
+	 * @param Ki
+	 *               the integral coefficient
+	 * @param Kd
+	 *               the derivative coefficient
 	 */
-	public SynchronousPID(double Kp, double Ki, double Kd, PIDSourceType type){
+	public SynchronousPID(double Kp, double Ki, double Kd, PIDSourceType type)
+	{
 		this(Kp, Ki, Kd, 0, type);
 	}
 
 	/**
-	 * Read the input, calculate the output accordingly, and write to the output. This should be
-	 * called at a constant rate by the user (ex. in a timed thread)
+	 * Read the input, calculate the output accordingly, and write to the
+	 * output. This should be called at a constant rate by the user (ex. in a
+	 * timed thread)
 	 *
-	 * @param input the input
+	 * @param input
+	 *                  the input
 	 * @return the controller output
 	 */
-	public double calculate(double input) {
+	public double calculate(double input)
+	{
 		m_last_input = input;
 		m_error = m_setpoint - input;
-		if (m_continuous) {
-			if (Math.abs(m_error) > (m_maximumInput - m_minimumInput) / 2) {
-				if (m_error > 0) {
+		if (m_continuous)
+		{
+			if (Math.abs(m_error) > (m_maximumInput - m_minimumInput) / 2)
+			{
+				if (m_error > 0)
+				{
 					m_error = m_error - m_maximumInput + m_minimumInput;
-				} else {
+				}
+				else
+				{
 					m_error = m_error + m_maximumInput - m_minimumInput;
 				}
 			}
 		}
 
-		if ((m_error * m_P < m_maximumOutput) && (m_error * m_P > m_minimumOutput)) {
+		if ((m_error * m_P < m_maximumOutput) && (m_error * m_P > m_minimumOutput))
+		{
 			m_totalError += m_error;
-		} else {
+		}
+		else
+		{
 			m_totalError = 0;
 		}
 
@@ -110,9 +132,12 @@ public class SynchronousPID {
 				+ calculateFeedForward();
 		m_prevError = m_error;
 
-		if (m_result > m_maximumOutput) {
+		if (m_result > m_maximumOutput)
+		{
 			m_result = m_maximumOutput;
-		} else if (m_result < m_minimumOutput) {
+		}
+		else if (m_result < m_minimumOutput)
+		{
 			m_result = m_minimumOutput;
 		}
 		m_avgError.push(Math.abs(getError()));
@@ -123,21 +148,27 @@ public class SynchronousPID {
 	 * Calculate the feed forward term.
 	 *
 	 * <p>
-	 * Both of the provided feed forward calculations are velocity feed forwards. If a different
-	 * feed forward calculation is desired, the user can override this function and provide his or
-	 * her own. This function does no synchronization because the PIDController class only calls it
-	 * in synchronized code, so be careful if calling it oneself.
+	 * Both of the provided feed forward calculations are velocity feed
+	 * forwards. If a different feed forward calculation is desired, the user
+	 * can override this function and provide his or her own. This function does
+	 * no synchronization because the PIDController class only calls it in
+	 * synchronized code, so be careful if calling it oneself.
 	 *
 	 * <p>
-	 * If a velocity PID controller is being used, the F term should be set to 1 over the maximum
-	 * setpoint for the output. If a position PID controller is being used, the F term should be set
-	 * to 1 over the maximum speed for the output measured in setpoint units per this controller's
-	 * update period (see the default period in this class's constructor).
+	 * If a velocity PID controller is being used, the F term should be set to 1
+	 * over the maximum setpoint for the output. If a position PID controller is
+	 * being used, the F term should be set to 1 over the maximum speed for the
+	 * output measured in setpoint units per this controller's update period
+	 * (see the default period in this class's constructor).
 	 */
-	protected double calculateFeedForward() {
-		if (PIDType.equals(PIDSourceType.kRate)) {
+	protected double calculateFeedForward()
+	{
+		if (PIDType.equals(PIDSourceType.kRate))
+		{
 			return m_F * getSetpoint();
-		} else {
+		}
+		else
+		{
 			// TODO
 			// double temp = m_F * //getDeltaSetpoint();
 			// m_prevSetpoint = m_setpoint;
@@ -147,14 +178,18 @@ public class SynchronousPID {
 	}
 
 	/**
-	 * Set the PID controller gain parameters. Set the proportional, integral, and differential
-	 * coefficients.
+	 * Set the PID controller gain parameters. Set the proportional, integral,
+	 * and differential coefficients.
 	 *
-	 * @param p Proportional coefficient
-	 * @param i Integral coefficient
-	 * @param d Differential coefficient
+	 * @param p
+	 *              Proportional coefficient
+	 * @param i
+	 *              Integral coefficient
+	 * @param d
+	 *              Differential coefficient
 	 */
-	public void setPID(double p, double i, double d, double f) {
+	public void setPID(double p, double i, double d, double f)
+	{
 		m_P = p;
 		m_I = i;
 		m_D = d;
@@ -166,7 +201,8 @@ public class SynchronousPID {
 	 *
 	 * @return proportional coefficient
 	 */
-	public double getP() {
+	public double getP()
+	{
 		return m_P;
 	}
 
@@ -175,7 +211,8 @@ public class SynchronousPID {
 	 *
 	 * @return integral coefficient
 	 */
-	public double getI() {
+	public double getI()
+	{
 		return m_I;
 	}
 
@@ -184,55 +221,69 @@ public class SynchronousPID {
 	 *
 	 * @return differential coefficient
 	 */
-	public double getD() {
+	public double getD()
+	{
 		return m_D;
 	}
 
 	/**
-	 * Return the current PID result This is always centered on zero and constrained the the max and
-	 * min outs
+	 * Return the current PID result This is always centered on zero and
+	 * constrained the the max and min outs
 	 *
 	 * @return the latest calculated output
 	 */
-	public double get() {
+	public double get()
+	{
 		return m_result;
 	}
 
 	/**
-	 * Set the PID controller to consider the input to be continuous, Rather then using the max and
-	 * min in as constraints, it considers them to be the same point and automatically calculates
-	 * the shortest route to the setpoint.
+	 * Set the PID controller to consider the input to be continuous, Rather
+	 * then using the max and min in as constraints, it considers them to be the
+	 * same point and automatically calculates the shortest route to the
+	 * setpoint.
 	 *
-	 * @param continuous Set to true turns on continuous, false turns off continuous
+	 * @param continuous
+	 *                       Set to true turns on continuous, false turns off
+	 *                       continuous
 	 */
-	public void setContinuous(boolean continuous) {
+	public void setContinuous(boolean continuous)
+	{
 		m_continuous = continuous;
 	}
 
 	/**
-	 * @param deadband the deadband on for calculating proportional error
+	 * @param deadband
+	 *                     the deadband on for calculating proportional error
 	 */
-	public void setDeadband(double deadband) {
+	public void setDeadband(double deadband)
+	{
 		m_deadband = deadband;
 	}
 
 	/**
-	 * Set the PID controller to consider the input to be continuous, Rather then using the max and
-	 * min in as constraints, it considers them to be the same point and automatically calculates
-	 * the shortest route to the setpoint.
+	 * Set the PID controller to consider the input to be continuous, Rather
+	 * then using the max and min in as constraints, it considers them to be the
+	 * same point and automatically calculates the shortest route to the
+	 * setpoint.
 	 */
-	public void setContinuous() {
+	public void setContinuous()
+	{
 		this.setContinuous(true);
 	}
 
 	/**
 	 * Sets the maximum and minimum values expected from the input.
 	 *
-	 * @param minimumInput the minimum value expected from the input
-	 * @param maximumInput the maximum value expected from the output
+	 * @param minimumInput
+	 *                         the minimum value expected from the input
+	 * @param maximumInput
+	 *                         the maximum value expected from the output
 	 */
-	public void setInputRange(double minimumInput, double maximumInput){
-		if (minimumInput > maximumInput) {
+	public void setInputRange(double minimumInput, double maximumInput)
+	{
+		if (minimumInput > maximumInput)
+		{
 			throw new RuntimeException("Lower bound is greater than upper bound");
 		}
 		m_minimumInput = minimumInput;
@@ -243,12 +294,16 @@ public class SynchronousPID {
 	/**
 	 * Sets the minimum and maximum values to write.
 	 *
-	 * @param minimumOutput the minimum value to write to the output
-	 * @param maximumOutput the maximum value to write to the output
+	 * @param minimumOutput
+	 *                          the minimum value to write to the output
+	 * @param maximumOutput
+	 *                          the maximum value to write to the output
 	 */
-	public void setOutputRange(double minimumOutput, double maximumOutput){
-		
-		if (minimumOutput > maximumOutput) {
+	public void setOutputRange(double minimumOutput, double maximumOutput)
+	{
+
+		if (minimumOutput > maximumOutput)
+		{
 			throw new RuntimeException("Lower bound is greater than upper bound");
 		}
 		m_minimumOutput = minimumOutput;
@@ -258,13 +313,16 @@ public class SynchronousPID {
 	/**
 	 * Set the setpoint for the PID controller
 	 *
-	 * @param setpoint the desired setpoint
+	 * @param setpoint
+	 *                     the desired setpoint
 	 */
-	public void setSetpoint(double setpoint) {
+	public void setSetpoint(double setpoint)
+	{
 		m_setpoint = clampSetpoint(setpoint);
 	}
 
-	protected double clampSetpoint(double setpoint) {
+	protected double clampSetpoint(double setpoint)
+	{
 		return RangeUtil.limit(setpoint, m_minimumInput, m_maximumInput);
 	}
 
@@ -273,7 +331,8 @@ public class SynchronousPID {
 	 *
 	 * @return the current setpoint
 	 */
-	public double getSetpoint() {
+	public double getSetpoint()
+	{
 		return m_setpoint;
 	}
 
@@ -282,56 +341,68 @@ public class SynchronousPID {
 	 *
 	 * @return the current error
 	 */
-	public double getError() {
+	public double getError()
+	{
 		return m_error;
 	}
-	public void setErrQue(int vals){
-		m_avgError=new FIFO<>(vals);
+
+	public void setErrQue(int vals)
+	{
+		m_avgError = new FIFO<>(vals);
 	}
 
 	/**
-	 * Returns the average difference of the input from the setpoint over the past few ticks of
-	 * calculate() number of ticks to track can be set via setErrorQueueSize
+	 * Returns the average difference of the input from the setpoint over the
+	 * past few ticks of calculate() number of ticks to track can be set via
+	 * setErrorQueueSize
 	 * 
 	 * @return the average error
 	 */
-	public double getAvgError() {
+	public double getAvgError()
+	{
 		return FIFO.average(m_avgError);
 	}
 
 	/**
 	 * Sets the number of ticks of error to track for avg error calculations
 	 * 
-	 * @param size the size of the avgError que
+	 * @param size
+	 *                 the size of the avgError que
 	 */
-	public void setErrorQueSize(int size) {
+	public void setErrorQueSize(int size)
+	{
 		m_avgError.setQueSize(size);
 	}
 
 	/**
 	 * Return true if the error is within the tolerance
 	 * 
-	 * @param tolerance the tolerance
+	 * @param tolerance
+	 *                      the tolerance
 	 * @return true if the error is less than the tolerance
 	 */
-	public boolean onTarget(double tolerance) {
+	public boolean onTarget(double tolerance)
+	{
 		return m_last_input != Double.NaN && Math.abs(m_last_input - m_setpoint) < Math.abs(tolerance);
 	}
 
 	/**
 	 * Return true if the average error is within the tolerance
 	 * 
-	 * @param tolerance the tolerance
+	 * @param tolerance
+	 *                      the tolerance
 	 * @return true if the average error is less than the tolerance
 	 */
-	public boolean onTargetStable(double tolerance) {
+	public boolean onTargetStable(double tolerance)
+	{
 		return m_last_input != Double.NaN && getAvgError() < Math.abs(tolerance);
 	}
 
 	/**
 	 * Reset all internal terms.
 	 */
-	public void reset() {
+	public void reset()
+	{
 		m_last_input = Double.NaN;
 		m_prevError = 0;
 		m_totalError = 0;
@@ -342,7 +413,8 @@ public class SynchronousPID {
 	/**
 	 * resets the total error counter
 	 */
-	public void resetIntegrator() {
+	public void resetIntegrator()
+	{
 		m_totalError = 0;
 	}
 }

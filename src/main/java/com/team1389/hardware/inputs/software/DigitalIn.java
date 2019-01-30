@@ -164,13 +164,20 @@ public class DigitalIn
 		return new DigitalIn(newInput);
 	}
 
-	public DigitalIn addChangeListener(Consumer<Boolean> onChange, boolean asyncPoll)
+	/**
+	 * adds a listener to a copy of this stream which will perform the given
+	 * action when the stream's value changes <br>
+	 * <em>NOTE</em>: The stream only registers changes when its
+	 * {@link RangeIn#get() get()} method is called periodically.
+	 * 
+	 * @param onChange
+	 *                     the action to perform when the stream value changes
+	 * @return copy of this stream with listener attached
+	 * 
+	 */
+	public DigitalIn addChangeListener(Consumer<Boolean> onChange)
 	{
 		ListeningBinaryInput listeningSource = BinaryInput.getListeningSource(input, onChange);
-		if (asyncPoll)
-		{
-			ListenerLooper.addListener(listeningSource);
-		}
 
 		return new DigitalIn(listeningSource);
 	}

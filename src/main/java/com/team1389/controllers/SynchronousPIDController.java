@@ -14,27 +14,36 @@ import com.team1389.watch.input.listener.NumberInput;
 
 /**
  * This class applies PID control to a set of input/output streams <br>
- * Does all computation synchronously (i.e. the calculate() function must be called by the user from
- * his own thread)
+ * Does all computation synchronously (i.e. the calculate() function must be
+ * called by the user from his own thread)
  * 
  * @author amind
  *
- * @param <O> the value type of the output stream
- * @param <I> the value type of the input stream
+ * @param <O>
+ *            the value type of the output stream
+ * @param <I>
+ *            the value type of the input stream
  */
-public class SynchronousPIDController<O extends Value, I extends PIDTunableValue> extends SynchronousPID {
+public class SynchronousPIDController<O extends Value, I extends PIDTunableValue> extends SynchronousPID
+{
 	protected RangeOut<O> output;
 	protected RangeIn<I> source;
 	protected boolean enabled;
 
 	/**
-	 * @param kP the proportional gain of the PID controller
-	 * @param kI the integral gain of the PID controller
-	 * @param kD the derivative gain of the PID controller
-	 * @param source the input stream
-	 * @param output the output stream
+	 * @param kP
+	 *                   the proportional gain of the PID controller
+	 * @param kI
+	 *                   the integral gain of the PID controller
+	 * @param kD
+	 *                   the derivative gain of the PID controller
+	 * @param source
+	 *                   the input stream
+	 * @param output
+	 *                   the output stream
 	 */
-	public SynchronousPIDController(double kP, double kI, double kD, double kF, RangeIn<I> source, RangeOut<O> output) {
+	public SynchronousPIDController(double kP, double kI, double kD, double kF, RangeIn<I> source, RangeOut<O> output)
+	{
 		super(kP, kI, kD, kF, PIDRangeIn.checkSourceType(source));
 		System.out.println(source.get());
 		this.source = source.copy();
@@ -45,118 +54,151 @@ public class SynchronousPIDController<O extends Value, I extends PIDTunableValue
 	}
 
 	/**
-	 * @param constants a set of gains for the PID controller
-	 * @param source the input stream
-	 * @param output the output stream
+	 * @param constants
+	 *                      a set of gains for the PID controller
+	 * @param source
+	 *                      the input stream
+	 * @param output
+	 *                      the output stream
 	 */
-	public SynchronousPIDController(PIDConstants constants, RangeIn<I> source, RangeOut<O> output) {
+	public SynchronousPIDController(PIDConstants constants, RangeIn<I> source, RangeOut<O> output)
+	{
 		this(constants.p, constants.i, constants.d, constants.f, source, output);
 	}
 
 	/**
-	 * updates the PID controller with the value of the input stream, applies the output of the
-	 * controller to the output stream
+	 * updates the PID controller with the value of the input stream, applies
+	 * the output of the controller to the output stream
 	 */
-	public void update() {
-		if (enabled) {
+	public void update()
+	{
+		if (enabled)
+		{
 			output.set(calculate(source.get()));
-		} else {
+		}
+		else
+		{
 			output.set(0.0);
 		}
 	}
-	public void setEnabled(boolean val){
+
+	public void setEnabled(boolean val)
+	{
 		enabled = val;
 	}
 
-	public void enable() {
+	public void enable()
+	{
 		enabled = true;
 	}
 
-	public void disable() {
+	public void disable()
+	{
 		enabled = false;
 	}
 
 	/**
-	 * @return an output stream that will pass applied values to the PID controller as setpoints
+	 * @return an output stream that will pass applied values to the PID
+	 *         controller as setpoints
 	 */
-	public RangeOut<I> getSetpointSetter() {
+	public RangeOut<I> getSetpointSetter()
+	{
 		return new RangeOut<I>(this::setSetpoint, source.min(), source.max());
 	}
 
 	/**
 	 * @return the input stream
 	 */
-	public RangeIn<I> getSource() {
+	public RangeIn<I> getSource()
+	{
 		return source;
 	}
 
 	/**
 	 * @return the original output stream
 	 */
-	public RangeOut<O> getOutput() {
+	public RangeOut<O> getOutput()
+	{
 		return output;
 	}
 
 	/**
 	 * @return an {@link Command} that updates the PID controller indefinitely
 	 */
-	public Command getPIDDoCommand() {
-		return getPIDDoCommand(() -> {
+	public Command getPIDToCommand()
+	{
+		return getPIDToCommand(() ->
+		{
 			return false;
 		});
 	}
 
 	/**
-	 * @param tolerance the tolerance within which to halt the PID updates
-	 * @return an {@link Command} that updates the PID controller until the value of the input
-	 *         stream is within the given tolerance of the setpoint
+	 * @param tolerance
+	 *                      the tolerance within which to halt the PID updates
+	 * @return an {@link Command} that updates the PID controller until the
+	 *         value of the input stream is within the given tolerance of the
+	 *         setpoint
 	 */
-	public Command getPIDDoCommand(double tolerance) {
-		return getPIDDoCommand(() -> {
+	public Command getPIDToCommand(double tolerance)
+	{
+		return getPIDToCommand(() ->
+		{
 			return onTargetStable(tolerance);
 		});
 	}
 
 	/**
-	 * @param exitCondition boolean stream that determines when to halt PID updates
-	 * @return an {@link Command} that updates the PID controller until the value of the boolean
-	 *         stream is true
+	 * @param exitCondition
+	 *                          boolean stream that determines when to halt PID
+	 *                          updates
+	 * @return an {@link Command} that updates the PID controller until the
+	 *         value of the boolean stream is true
 	 */
-	public Command getPIDDoCommand(BinaryInput exitCondition) {
-		return CommandUtil.createCommand(() -> {
+	public Command getPIDToCommand(BinaryInput exitCondition)
+	{
+		return CommandUtil.createCommand(() ->
+		{
 			update();
 			return exitCondition.get();
 		});
 	}
 
 	/**
-	 * @param constants a set of gains for the PID controller
+	 * @param constants
+	 *                      a set of gains for the PID controller
 	 */
-	public void setPID(PIDConstants constants) {
+	public void setPID(PIDConstants constants)
+	{
 		super.setPID(constants.p, constants.i, constants.d, constants.f);
 	}
 
 	/**
 	 * @return the current gains of the PID controller
 	 */
-	public PIDConstants getPID() {
+	public PIDConstants getPID()
+	{
 		return new PIDConstants(getP(), getI(), getD());
 	}
 
 	/**
-	 * @param name the name of the tuner watchable
-	 * @return a watchable object that can accept input to adjust the gains of the PID controller
-	 *         TODO this can be all the time once feedforward is implemented
+	 * @param name
+	 *                 the name of the tuner watchable
+	 * @return a watchable object that can accept input to adjust the gains of
+	 *         the PID controller TODO this can be all the time once feedforward
+	 *         is implemented
 	 */
-	public CompositeWatchable getPIDTuner(String name) {
+	public CompositeWatchable getPIDTuner(String name)
+	{
 		return CompositeWatchable.of(name,
 				new PIDInput(name, getPID(), true, this::setPID).getSubWatchables(CompositeWatchable.makeStem()));
 	}
 
-	public CompositeWatchable getPIDTunerWithSetpoint(String name) {
+	public CompositeWatchable getPIDTunerWithSetpoint(String name)
+	{
 		return CompositeWatchable.of(name,
-				new PIDInput(name, getPID(), true, this::setPID).getSubWatchables(CompositeWatchable.makeStem()).put(
-						new NumberInput("setpoint", getSetpoint(), this::setSetpoint)));
+				new PIDInput(name, getPID(), true, this::setPID).getSubWatchables(CompositeWatchable.makeStem())
+						.put(new NumberInput("setpoint", getSetpoint(), this::setSetpoint)));
 	}
 
 }

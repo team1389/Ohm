@@ -39,8 +39,8 @@ public class SixDriveOut<T extends Value> implements CompositeWatchable
 
 	public DriveOut<T> getAsTank()
 	{
-		RangeOut<T> left = front.left().copy().addFollowers(rear.left().addFollowers(middle.left()));
-		RangeOut<T> right = front.right().copy().addFollowers(rear.right().addFollowers(middle.right()));
+		RangeOut<T> left = front.left().copy().getWithAddedFollowers(rear.left().getWithAddedFollowers(middle.left()));
+		RangeOut<T> right = front.right().copy().getWithAddedFollowers(rear.right().getWithAddedFollowers(middle.right()));
 		return new DriveOut<>(left, right);
 	}
 

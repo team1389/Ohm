@@ -47,7 +47,7 @@ public class PathFollowingSystem extends DriveSystem {
 		this.leftPos = leftPos;
 		this.rightPos = rightPos;
 		this.wheelVoltageOut = voltage;
-		this.heading = heading.copy().setRange(-180, 180).getWrapped();
+		this.heading = heading.copy().getWithSetRange(-180, 180).getWrapped();
 		this.constants = constants;
 	}
 

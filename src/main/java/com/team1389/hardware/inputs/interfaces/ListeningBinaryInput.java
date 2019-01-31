@@ -8,41 +8,49 @@ import java.util.function.Consumer;
  * @author amind
  *
  */
-public class ListeningBinaryInput implements BinaryInput, Listener<Boolean> {
+public class ListeningBinaryInput implements BinaryInput, Listener<Boolean>
+{
 	private BinaryInput in;
 	private Consumer<Boolean> onChange;
 	private boolean newVal;
 	private boolean oldVal;
 
-	protected ListeningBinaryInput(BinaryInput in, Consumer<Boolean> onChange) {
+	protected ListeningBinaryInput(BinaryInput in, Consumer<Boolean> onChange)
+	{
 		this.onChange = onChange;
 		this.in = in;
+		newVal = in.get();
+		oldVal = newVal;
 	}
 
-	public Boolean get() {
-		update();
+	public Boolean get()
+	{
 		check();
 		return newVal;
 	}
 
-	private void update() {
+	private void update()
+	{
 		oldVal = newVal;
 		newVal = in.get();
 	}
 
-	public boolean hasChanged() {
+	public boolean hasChanged()
+	{
 		update();
 		return oldVal != newVal;
 
 	}
 
 	@Override
-	public void onChange(Boolean newVal) {
+	public void onChange(Boolean newVal)
+	{
 		onChange.accept(newVal);
 	}
 
 	@Override
-	public Boolean getLatestVal() {
+	public Boolean getLatestVal()
+	{
 		return newVal;
 	}
 }

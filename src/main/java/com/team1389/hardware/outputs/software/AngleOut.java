@@ -25,7 +25,7 @@ public class AngleOut<T extends PIDTunableValue> extends RangeOut<T> {
 	 * 
 	 * @param out stream being operated on
 	 */
-	public AngleOut(RangeOut<? extends T> out) {
+	public AngleOut(RangeOut<T> out) {
 		this(ScalarOutput.mapToAngle(out.output, out.min, out.max));
 	}
 

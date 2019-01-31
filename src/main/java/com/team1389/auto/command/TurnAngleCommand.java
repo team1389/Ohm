@@ -83,7 +83,7 @@ public class TurnAngleCommand<O extends Value> extends Command {
 		pid.getOutput().set(0);
 	}
 	public static <T extends Value> RangeOut<T> createTurnController(DriveOut<T> asTank) {
-		return asTank.left().copy().addFollowers(asTank.right().copy().invert());
+		return asTank.left().copy().getWithAddedFollowers(asTank.right().copy().getInverted());
 	}
 
 }

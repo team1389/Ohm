@@ -17,7 +17,8 @@ import com.team1389.watch.info.NumberInfo;
 import com.team1389.watch.input.listener.NumberInput;
 
 /**
- * a stream of doubles with a range, and methods to deal with conversion and range of the stream
+ * a stream of doubles with a range, and methods to deal with conversion and range of the stream. Note that all operations do not affect original stream, 
+ * and instead return a new stream with the operation applied
  * 
  * @author Kenneth
  *
@@ -39,7 +40,6 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 		this.output = out;
 		this.min = min;
 		this.max = max;
-		operations = () -> "-> [output]";
 	}
 
 	/**
@@ -98,11 +98,12 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	/**
 	 * preserve type of stream
 	 * 
-	 * @return this stream with the type it was called from
+	 * @param streamToCast Stream that will be altered to a stream of type <R> 
+	 * @return Stream of type <R>
 	 */
 	@SuppressWarnings("unchecked")
-	private <R extends RangeOut<T>> R cast() {
-		return (R) this;
+	private <R extends RangeOut<T>> R cast(RangeOut<T> streamToCast) {
+		return (R) streamToCast;
 	}
 
 	public RangeOut<T> copy() {
@@ -110,65 +111,68 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	}
 
 	/**
-	 * maps this stream to a percent stream (you pass it percent values and it converts them to the
+	 * maps a copy of this stream to a percent stream (you pass it percent values and it converts them to the
 	 * old range before passing them down)
 	 * 
-	 * @return the new stream that is this stream mapped to the aforementioned range
+	 * @return the new stream that is a copy of this stream mapped to the aforementioned range
 	 */
-	public PercentOut mapToPercentOut() {
-		double oldMin = this.min;
-		double oldMax = this.max;
-		addOperation(d -> "-> map[percent]:[" + oldMin + "," + oldMax + "]" + " = " + d);
-		return new PercentOut(this);
+	public PercentOut getAsPercentOut() {
+		RangeOut<T> newStream = this.copy();
+		double oldMin = min;
+		double oldMax = max;
+		newStream.addOperation(d -> "-> map[percent]:[" + oldMin + "," + oldMax + "]" + " = " + d);
+		return new PercentOut(this.copy());
 	}
 
 	/**
-	 * maps this stream to an angle stream (you pass it angle values and it converts them to the old
+	 * maps a copy of this stream to an angle stream (you pass it angle values and it converts them to the old
 	 * range before passing them down)
 	 * 
-	 * @return the new stream that is this stream mapped to the aforementioned range
+	 * @return the new stream that is a copy of this stream mapped to the aforementioned range
 	 */
-	public <V extends PIDTunableValue> AngleOut<V> mapToAngle() {
-		double oldMin = this.min;
-		double oldMax = this.max;
-		addOperation(d -> "-> map[degrees]:[" + oldMin + "," + oldMax + "]" + " = " + d);
-		return new AngleOut<V>(convertRange());
+	public <V extends PIDTunableValue> AngleOut<V> getAsAngle() {
+		RangeOut<T> newStream = getConvertedCopy();
+		double oldMin = min;
+		double oldMax = max;
+		newStream.addOperation(d -> "-> map[degrees]:[" + oldMin + "," + oldMax + "]" + " = " + d);
+		return new AngleOut<V>(getConvertedCopy());
 	}
 
 	/**
-	 * maps the stream to a given range, setting a new min and max, and adjusting the stream values
+	 * maps a copy of this stream to a given range, setting a new min and max, and adjusting the stream values
 	 * to compensate
 	 * 
-	 * @param min of stream being operated on
-	 * @param max of stream being operated on
-	 * @return new stream mapped to given range
+	 * @param min Minimum of range for new stream
+	 * @param max Maximum of range for the new stream
+	 * @return copy of this stream mapped to given range
 	 */
-	public <R extends RangeOut<T>> R mapToRange(double min, double max) {
+	public <R extends RangeOut<T>> R getMappedToRange(double min, double max) {
 		double oldMin = this.min;
 		double oldMax = this.max;
-		addOperation(d -> "-> map[" + min + "," + max + "]:[" + oldMin + "," + oldMax + "]" + " = " + d);
-		this.output = ScalarOutput.mapToRange(output, min, max, this.min, this.max);
-		this.min = min;
-		this.max = max;
-		return cast();
+		ScalarOutput<T> newOutput = ScalarOutput.mapToRange(output, min, max, oldMin, oldMax);
+		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.	addOperation(d -> "-> map[" + min + "," + max + "]:[" + oldMin + "," + oldMax + "]" + " = " + d);
+		return cast(newStream);
 	}
 
 	/**
-	 * invert the values in the stream
+	 * copies this stream and inverts the values in it
 	 * 
-	 * @return new inverted stream
+	 * @return a copy of this stream, but inverted
 	 */
-	public <R extends RangeOut<T>> R invert() {
-		addOperation(d -> "-> invert = " + d);
-		this.output = ScalarOutput.invert(output);
-		return cast();
+	public <R extends RangeOut<T>> R getInverted() {
+
+		ScalarOutput<T> newOutput = ScalarOutput.invert(output);
+		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> invert = " + d);
+		return cast(newStream);
 	}
 
 	/**
-	 * Maps the stream from the given range to another range, setting a new min and max, and
+	 * Maps a copy of this stream from the given range to another range, setting a new min and max, and
 	 * adjusting the stream values to compensate. <br>
-	 * This is the equivalent of calling {@link RangeIn#setRange(oldMin, oldMax)}, then
-	 * {@link RangeIn#mapToRange(min, max)} Can be used to reverse the stream values as explained in
+	 * This is the equivalent of calling {@link RangeIn#getWithSetRange(oldMin, oldMax)}, then
+	 * {@link RangeIn#getMappedToRange(min, max)} Can be used to reverse the stream values as explained in
 	 * {@link com.team1389.util.RangeUtil#map(double, double, double, double, double) RangeUtil.map}
 	 * 
 	 * @see RangeIn#mapToRange(double, double) mapToRange
@@ -176,38 +180,38 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 * @param oldMax the claimed max of the original stream
 	 * @param min of stream being operated on
 	 * @param max of stream being operated on
-	 * @return new stream mapped to given range
+	 * @return copy of this stream mapped to given range, as if its min and max are the first two arguments
 	 */
-	public RangeOut<T> adjustRange(double oldMin, double oldMax, double min, double max) {
-		output = ScalarOutput.mapToRange(output, oldMin, oldMax, min, max);
-		addOperation(d -> "-> map from [" + oldMin + "," + oldMax + "] to [" + min + "," + max + "] = " + d);
-		this.min = min;
-		this.max = max;
-		return this;
+	public RangeOut<T> getAdjustedToRange(double oldMin, double oldMax, double min, double max) {
+		ScalarOutput<T> newOutput = ScalarOutput.mapToRange(output, oldMin, oldMax, min, max);
+		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> map from [" + oldMin + "," + oldMax + "] to [" + min + "," + max + "] = " + d);
+		return newStream;
 	}
 
 	/**
-	 * apply a {@link ProfiledRangeOut} to the output stream
+	 * create a copy of this rangeout that is a {@link ProfiledRangeOut} 
 	 * 
 	 * @param maxChange the max change in position
 	 * @param initialPos the current position
-	 * @return new stream of type {@link ProfiledRangeOut}
+	 * @return copy of this stream of type {@link ProfiledRangeOut} with added functionality of {@link ProfiledRangeOut}
 	 */
 	public <R extends RangeOut<T>> R getProfiledOut(double maxChange, double initialPos) {
-		addOperation(d -> "-> profile[" + maxChange + "] = " + d);
-		output = new ProfiledRangeOut<T>(output, min, max, maxChange, initialPos);
-		return cast();
+		ScalarOutput<T> newOutput = new ProfiledRangeOut<T>(output, min, max, maxChange, initialPos);
+		RangeOut<T> newStream =  new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> profile[" + maxChange + "] = " + d);
+		return cast(newStream);
 	}
 
 	/**
-	 * add a change listener to the stream
+	 * Makes a copy of this stream with a change listener
 	 * 
-	 * @param onChange what to run if values change
-	 * @return new stream with new change listener TODO fix this to use consumer
+	 * @param onChange function to run if values change
+	 * @return copy of this stream with added change listener
 	 */
-	public <R extends RangeOut<T>> R addChangeListener(Consumer<Double> onChange) {
-		output = ScalarOutput.getListeningOutput(output, onChange);
-		return cast();
+	public <R extends RangeOut<T>> R getWithChangeListener(Consumer<Double> onChange) {
+		ScalarOutput<T> newOutput = ScalarOutput.getListeningOutput(output, onChange);
+		return cast(new RangeOut<T>(newOutput, min, max));
 	}
 
 	/**
@@ -223,34 +227,32 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	}
 
 	/**
-	 * adds a stream as a follower; The stream will now be passed any value this stream recieves.
+	 * adds a stream as a follower to a copy of this stream; The follower stream will now be passed any value this stream recieves. 
+	 * Output is not mapped if follower range is different from master stream's range
 	 * <p>
-	 * If the follower stream has a different range than the leader stream, the input will be mapped
-	 * to the follower's range before being passed
-	 * 
 	 * @param outFollow stream to add as a follower
-	 * @return this stream but with an additional follower
+	 * @return a copy of this stream but with an additional follower
 	 */
-	public <R extends RangeOut<T>> R addFollowers(RangeOut<T> outFollow) {
-		ScalarOutput<T> out = this.output;
-		output = val -> {
-			out.set(val);
+	public <R extends RangeOut<T>> R getWithAddedFollowers(RangeOut<T> outFollow) {
+		ScalarOutput<T> newOutput = val -> {
+			output.set(val);
 			outFollow.set(val);
 		};
 
-		return cast();
+		return cast(new RangeOut<T>(newOutput, min, max));
 	}
 
 	/**
-	 * causes the stream to replace the value of anything in the deadzone with 0.0
+	 * creates a copy of this stream that replaces the value of anything in the deadzone with 0.0
 	 * 
 	 * @param deadband the max distance from 0 (deadzone)
-	 * @return stream with Deadband of {@code deadband}
+	 * @return copy of this stream with Deadband of {@code deadband}
 	 */
-	public <R extends RangeOut<T>> R applyDeadband(double deadband) {
-		addOperation(d -> "-> deadband[" + deadband + "] = " + d);
-		output = ScalarOutput.applyDeadband(output, deadband);
-		return cast();
+	public <R extends RangeOut<T>> R getWithDeadband(double deadband) {
+		ScalarOutput<T> newOutput = ScalarOutput.applyDeadband(output, deadband);
+		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> deadband[" + deadband + "] = " + d);
+		return cast(newStream);
 	}
 
 	/**
@@ -258,8 +260,8 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 * 
 	 * @return new stream that is limited to a range
 	 */
-	public <R extends RangeOut<T>> R clamp() {
-		return limit(min, max);
+	public <R extends RangeOut<T>> R getClamped() {
+		return getLimited(min, max);
 	}
 
 	/**
@@ -268,89 +270,90 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 	 * @param abs the absolute value of min/max of range
 	 * @return clamped stream
 	 */
-	public <R extends RangeOut<T>> R limit(double abs) {
-		return limit(-abs, abs);
+	public <R extends RangeOut<T>> R getLimited(double abs) {
+		return getLimited(-abs, abs);
 	}
 
 	/**
-	 * constrains values in the stream to be between min and max arguments
+	 * creates a copy of this stream which constrains values in the stream to be between min and max arguments
 	 * 
 	 * @param min the min value of desired capped range
 	 * @param max the max value of desired capped range
-	 * @return new stream that is limited to a range
+	 * @return copy of this stream that is limited to the desired range
 	 */
-	public <R extends RangeOut<T>> R limit(double min, double max) {
-		addOperation(d -> "-> limit[" + min + "," + max + "] = " + d);
-		output = ScalarOutput.limit(output, min, max);
-		return cast();
+	public <R extends RangeOut<T>> R getLimited(double min, double max) {
+		ScalarOutput<T> newOutput = ScalarOutput.limit(output, min, max);
+		RangeOut<T> newStream = new RangeOut<T>(newOutput, min, max);
+		newStream.addOperation(d -> "-> limit[" + min + "," + max + "] = " + d);
+		return cast(newStream);
 	}
 
 	/**
 	 * 
 	 * @param offsetAmt the stream that holds the values which this stream is offset by
-	 * @return this stream but with all the values offset by the value in the input stream
+	 * @return a copy of this stream with all the values offset by the value in the input stream
 	 */
-	public <R extends RangeOut<T>> R offset(ScalarInput<?> offsetAmt) {
-		output = ScalarOutput.offset(output, offsetAmt);
-		return cast();
+	public <R extends RangeOut<T>> R getOffset(ScalarInput<?> offsetAmt) {
+		ScalarOutput<T> newOutput = ScalarOutput.offset(output, offsetAmt);
+		return cast(new RangeOut<T>(newOutput, min, max));
 	}
 
 	/**
 	 * 
-	 * @param amt the value that is added to every value in this stream
-	 * @return this stream but with {@code amt} added to every value
+	 * @param amt the value that is added to every value in the copy of this stream
+	 * @return a copy of this stream but with {@code amt} added to every value
 	 */
-	public <R extends RangeOut<T>> R offset(double amt) {
-		return offset(() -> {
+	public <R extends RangeOut<T>> R getOffset(double amt) {
+		return getOffset(() -> {
 			return amt;
 		});
 	}
 
 	/**
 	 * 
-	 * @param factor value to scale by
-	 * @return this stream but with min, max, and val multiplied by {@code factor}
+	 * @param factor value to scale output by
+	 * @return a copy of this stream but with min, max, and val multiplied by {@code factor}
 	 */
-	public RangeOut<T> scale(double factor) {
-		output = ScalarOutput.scale(output, factor);
-		max *= factor;
-		min *= factor;
-		return this;
+	public RangeOut<T> getScaled(double factor) {
+		ScalarOutput<T> newOutput = ScalarOutput.scale(output, factor);
+		double newMax = factor * max;
+		double newMin = factor * min; 
+		return new RangeOut<T>(newOutput, newMin, newMax);
 	}
 
 	/**
-	 * converts the stream to the desired value type
+	 * makes a copy of this stream that is the desired value type
 	 * 
-	 * @return a new stream with the same values but the new type
+	 * @return a copy of this stream with the same values but the new type
 	 */
-	protected <N extends Value> RangeOut<N> convertRange() {
+	protected <N extends Value> RangeOut<N> getConvertedCopy() {
 		return new RangeOut<N>(output, min, max);
 	}
 
 	/**
-	 * sets the min and max values of the stream <br>
-	 * <em>NOTE</em>: Unlike {@link RangeOut#mapToRange(double, double) mapToRange}, this operation
+	 * creates a copy of this stream with a new min and max value <br>
+	 * <em>NOTE</em>: Unlike {@link RangeOut#getMappedToRange(double, double) mapToRange}, this operation
 	 * does not affect the values in the stream, only the range.
 	 * 
 	 * @param min value to set as min
 	 * @param max value to set as max
-	 * @return this stream but with a new min and max
+	 * @return copy of this stream but with a new min and max
 	 */
-	public RangeOut<T> setRange(int min, int max) {
-		this.min = min;
-		this.max = max;
-		return this;
+	public RangeOut<T> getWithSetRange(int min, int max) {
+		double newMin = min;
+		double newMax = max;
+		return new RangeOut<>(output, newMin, newMax);
 	}
 
 	/**
-	 * applies the given operation to the values coming through this stream
+	 * applies the given operation to the values coming through a copy of this stream
 	 * 
 	 * @param operation the unary operation (takes a double value returns a mapped value)
-	 * @return the mapped stream
+	 * @return a copy of this stream, but mapped
 	 */
-	public RangeOut<T> map(UnaryOperator<Double> operation) {
-		output = ScalarOutput.map(output, operation);
-		return this;
+	public RangeOut<T> getMapped(UnaryOperator<Double> operation) {
+		ScalarOutput<T> newOutput = ScalarOutput.map(output, operation);
+		return new RangeOut<T>(newOutput, min, max);
 	}
 
 	private void addOperation(Function<String, String> operation) {
@@ -360,9 +363,8 @@ public class RangeOut<T extends Value> implements ScalarInput<T> {
 		Supplier<String> oldOperations = operations;
 		operations = () -> operation.apply(DisplayDouble.get(lastVal.getLatestVal(), 7)) + oldOperations.get();
 	}
-
 	public String toString() {
-		return lastVal + operations.get();
+		return "Last applied value: " + lastVal;
 	}
 
 }

@@ -489,8 +489,6 @@ public class RangeIn<T extends Value>
 		ScalarInput<T> newInput = ScalarInput.map(input, operation);
 		RangeIn<T> newStream = this.copy();
 		newStream.input = newInput;
-		newStream.min = min;
-		newStream.max = max;
 		return cast(newStream);
 	}
 

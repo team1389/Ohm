@@ -11,33 +11,41 @@ import com.team1389.watch.info.BooleanInfo;
 
 /**
  * a stream of booleans with methods to manipulate it
+ * 
  * @author Kenneth
  *
  */
-public class DigitalOut implements BooleanSupplier {
+public class DigitalOut implements BooleanSupplier
+{
 	BinaryOutput out;
 	private boolean last;
 
 	/**
 	 * 
-	 * @param out stream of booleans
+	 * @param out
+	 *                stream of booleans
 	 */
-	public DigitalOut(BinaryOutput out) {
+	public DigitalOut(BinaryOutput out)
+	{
 		this.out = out;
 	}
 
 	/**
-	 * @param out the boolean consumer
+	 * @param out
+	 *                the boolean consumer
 	 */
-	public DigitalOut(Consumer<Boolean> out) {
+	public DigitalOut(Consumer<Boolean> out)
+	{
 		this(BinaryOutput.convert(out));
 	}
 
 	/**
 	 * 
-	 * @param onOrOff value to be passed down the stream
+	 * @param onOrOff
+	 *                    value to be passed down the stream
 	 */
-	public void set(boolean onOrOff) {
+	public void set(boolean onOrOff)
+	{
 		this.last = onOrOff;
 		out.set(onOrOff);
 	}
@@ -46,17 +54,21 @@ public class DigitalOut implements BooleanSupplier {
 	 * 
 	 * @return this stream but inverted
 	 */
-	public DigitalOut getInverted() {
+	public DigitalOut getInverted()
+	{
 		BinaryOutput newOutput = BinaryOutput.invert(out);
 		return new DigitalOut(newOutput);
 	}
 
 	/**
 	 * adds the given digital out streams as followers of this stream
+	 * 
 	 * @return this stream with a relay to the given followers
 	 */
-	public DigitalOut getWithAddedFollowers(DigitalOut... follows) {
-		BinaryOutput newOutput  = val -> {
+	public DigitalOut getWithAddedFollowers(DigitalOut... follows)
+	{
+		BinaryOutput newOutput = val ->
+		{
 			out.set(val);
 			Arrays.stream(follows).forEach(d -> d.set(val));
 		};
@@ -66,20 +78,26 @@ public class DigitalOut implements BooleanSupplier {
 
 	/**
 	 * 
-	 * @param name the String identifier of the watchable
+	 * @param name
+	 *                 the String identifier of the watchable
 	 * @return a watchable that tracks the boolean stream
 	 */
-	public Watchable getWatchable(String name) {
+	public Watchable getWatchable(String name)
+	{
 		return new BooleanInfo(name, this);
 	}
 
 	/**
-	 * generates a new stream that passes the output values through the given unary operation to the
-	 * original stream
-	 * @param operation the unary operation (takes a boolean value returns a mapped value)
+	 * generates a new stream that passes the output values through the given
+	 * unary operation to the original stream
+	 * 
+	 * @param operation
+	 *                      the unary operation (takes a boolean value returns a
+	 *                      mapped value)
 	 * @return the mapped stream
 	 */
-	public DigitalOut getMapped(UnaryOperator<Boolean> operation) {
+	public DigitalOut getMapped(UnaryOperator<Boolean> operation)
+	{
 		BinaryOutput newOut = BinaryOutput.map(out, operation);
 		return new DigitalOut(newOut);
 	}
@@ -88,7 +106,13 @@ public class DigitalOut implements BooleanSupplier {
 	 * @return value of the stream
 	 */
 	@Override
-	public boolean getAsBoolean() {
+	public boolean getAsBoolean()
+	{
 		return last;
+	}
+
+	public DigitalOut copy()
+	{
+		return new DigitalOut(out);
 	}
 }

@@ -210,7 +210,9 @@ public class RangeIn<T extends Value>
 	 */
 	public RangeIn<T> getWithSetRange(double min, double max)
 	{
-		RangeIn<T> newStream = new RangeIn<>(type, input, min, max);
+		RangeIn<T> newStream = this.copy();
+		newStream.min = min;
+		newStream.max = max;
 		newStream.addOperation(d -> " -> setRange[" + min + "," + max + "] = " + d);
 		return newStream;
 	}
@@ -258,7 +260,11 @@ public class RangeIn<T extends Value>
 	public RangeIn<T> getAdjustedToRange(double oldMin, double oldMax, double min, double max)
 	{
 		ScalarInput<T> newInput = ScalarInput.mapToRange(input, oldMin, oldMax, min, max);
-		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+
+		RangeIn<T> newStream = this.copy();
+		newStream.input = newInput;
+		newStream.min = min;
+		newStream.max = max;
 		newStream.addOperation(d -> "-> map from [" + oldMin + "," + oldMax + "] to [" + min + "," + max + "] = " + d);
 		return newStream;
 	}
@@ -277,6 +283,9 @@ public class RangeIn<T extends Value>
 	{
 		ListeningScalarInput<T> listeningInput = ScalarInput.getListeningInput(input, onChange);
 		RangeIn<T> newStream = new RangeIn<>(type, listeningInput, min, max);
+		newStream.input = listeningInput;
+		newStream.min = min;
+		newStream.max = max;
 		return cast(newStream);
 	}
 
@@ -291,7 +300,10 @@ public class RangeIn<T extends Value>
 	public <R extends RangeIn<T>> R getWithDeadband(double deadband)
 	{
 		ScalarInput<T> newInput = ScalarInput.applyDeadband(input, deadband);
-		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		RangeIn<T> newStream = this.copy();
+		newStream.input = newInput;
+		newStream.min = min;
+		newStream.max = max;
 		newStream.addOperation(d -> " -> deadband[" + deadband + "] = " + d);
 		return cast(newStream);
 	}
@@ -306,7 +318,10 @@ public class RangeIn<T extends Value>
 	public <R extends RangeIn<T>> R getInverted()
 	{
 		ScalarInput<T> newInput = ScalarInput.invert(input);
-		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		RangeIn<T> newStream = this.copy();
+		newStream.input = newInput;
+		newStream.min = min;
+		newStream.max = max;
 		newStream.addOperation(d -> " -> invert = " + d);
 		return cast(newStream);
 	}
@@ -324,7 +339,10 @@ public class RangeIn<T extends Value>
 		addOperation(d -> " -> scale[" + input.get() + "*" + factor + "] = " + d);
 		double newMax = max * factor;
 		double newMin = min * factor;
-		RangeIn<T> newStream = new RangeIn<>(type, newInput, newMin, newMax);
+		RangeIn<T> newStream = this.copy();
+		newStream.input = newInput;
+		newStream.min = newMin;
+		newStream.max = newMax;
 		return cast(newStream);
 	}
 
@@ -337,7 +355,8 @@ public class RangeIn<T extends Value>
 	public <R extends RangeIn<T>> R getWrapped()
 	{
 		ScalarInput<T> newInput = ScalarInput.getWrapped(input, min(), max());
-		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		RangeIn<T> newStream = this.copy();
+		newStream.input = newInput;
 		newStream.addOperation(d -> " -> wrap[" + min + "," + max + "] = " + d);
 		return cast(newStream);
 	}
@@ -353,7 +372,8 @@ public class RangeIn<T extends Value>
 	public <R extends RangeIn<T>> R getSummedInputs(RangeIn<T> rngIn)
 	{
 		ScalarInput<T> newInput = ScalarInput.sum(input, rngIn.input);
-		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		RangeIn<T> newStream = this.copy();
+		newStream.input = newInput;
 		newStream.addOperation(d -> " -> sum[" + input.get() + "+" + rngIn.get() + "] = " + d);
 		return cast(newStream);
 	}
@@ -361,7 +381,8 @@ public class RangeIn<T extends Value>
 	public <R extends RangeIn<T>> R getOffset(double val)
 	{
 		ScalarInput<T> newInput = () -> input.get() + val;
-		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		RangeIn<T> newStream = this.copy();
+		newStream.input = newInput;
 		newStream.addOperation(d -> " -> sum[" + input.get() + "+" + val + "] = " + d);
 		return cast(newStream);
 	}
@@ -405,7 +426,8 @@ public class RangeIn<T extends Value>
 	public <R extends RangeIn<T>> R getLimited(double min, double max)
 	{
 		ScalarInput<T> newInput = ScalarInput.limitRange(input, min, max);
-		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		RangeIn<T> newStream = this.copy();
+		newStream.input = newInput;
 		newStream.addOperation(d -> " -> limit[" + min + "," + max + "] = " + d);
 		return cast(newStream);
 	}
@@ -420,6 +442,7 @@ public class RangeIn<T extends Value>
 	 */
 	private <N extends Value> RangeIn<N> getConvertedCopy(Class<N> type)
 	{
+
 		return new RangeIn<N>(type, input, min, max);
 	}
 
@@ -464,7 +487,10 @@ public class RangeIn<T extends Value>
 	public <R extends RangeIn<T>> R getMapped(UnaryOperator<Double> operation)
 	{
 		ScalarInput<T> newInput = ScalarInput.map(input, operation);
-		RangeIn<T> newStream = new RangeIn<>(type, newInput, min, max);
+		RangeIn<T> newStream = this.copy();
+		newStream.input = newInput;
+		newStream.min = min;
+		newStream.max = max;
 		return cast(newStream);
 	}
 

@@ -53,14 +53,15 @@ public class CANTalonHardware extends Hardware<CAN>
 
 	/**
 	 * @param outInverted
-	 *            whether the motor output should be inverted (used for both
-	 *            voltage and position control modes)
+	 *                          whether the motor output should be inverted
+	 *                          (used for both voltage and position control
+	 *                          modes)
 	 * @param inpInverted
-	 *            whether the sensor input should be inverted
+	 *                          whether the sensor input should be inverted
 	 * @param requestedPort
-	 *            the port to attempt to initialize this hardware
+	 *                          the port to attempt to initialize this hardware
 	 * @param registry
-	 *            the registry associated with the robot
+	 *                          the registry associated with the robot
 	 * @see <a href=
 	 *      "https://www.ctr-electronics.com/Talon%20SRX%20Software%20Reference%20Manual.pdf">Talon
 	 *      SRX user manual</a> for more information on output/input inversion
@@ -88,12 +89,13 @@ public class CANTalonHardware extends Hardware<CAN>
 	 * assumes input is not inverted
 	 * 
 	 * @param outInverted
-	 *            whether the motor output should be inverted (used for both
-	 *            voltage and position control modes)
+	 *                          whether the motor output should be inverted
+	 *                          (used for both voltage and position control
+	 *                          modes)
 	 * @param requestedPort
-	 *            the port to attempt to initialize this hardware
+	 *                          the port to attempt to initialize this hardware
 	 * @param registry
-	 *            the registry associated with the robot
+	 *                          the registry associated with the robot
 	 * @see <a href=
 	 *      "https://www.ctr-electronics.com/Talon%20SRX%20Software%20Reference%20Manual.pdf">Talon
 	 *      SRX user manual</a> for more information on output/input inversion
@@ -101,8 +103,7 @@ public class CANTalonHardware extends Hardware<CAN>
 	public CANTalonHardware(boolean outInverted, CAN requestedPort, Registry registry,
 			Consumer<WPI_TalonSRX> initialConfig)
 	{
-		//feedback device is set to Quad Encoder, which is factory default. 
-		//TODO: test what happens if we try and pull sensor stream from something without quad encoder plugged in
+		// feedback device is set to Quad Encoder, which is factory default.
 		this(outInverted, false, FeedbackDevice.QuadEncoder, 0, requestedPort, registry, initialConfig);
 	}
 
@@ -188,11 +189,11 @@ public class CANTalonHardware extends Hardware<CAN>
 	// Configurations
 	/**
 	 * @param talon
-	 *            talon to configure
+	 *                    talon to configure
 	 * @param vcruise
-	 *            max velocity in sensor units/sec
+	 *                    max velocity in sensor units/sec
 	 * @param acc
-	 *            max velocity in sensor units/sec^2
+	 *                    max velocity in sensor units/sec^2
 	 * @param pid
 	 */
 	private static void configMotionMagic(WPI_TalonSRX talon, int vCruise, int acc, PIDConstants pid)
@@ -221,7 +222,8 @@ public class CANTalonHardware extends Hardware<CAN>
 			if (wpiTalon.map(t -> t.getControlMode() == ControlMode.MotionMagic).orElse(false))
 			{
 				wpiTalon.ifPresent(t -> t.set(ControlMode.MotionMagic, d));
-			} else
+			}
+			else
 			{
 				throw new RuntimeException(
 						"Error! attempted to use motion magic after control mode was changed, ensure you are only controlling the talon from one place!");
@@ -248,7 +250,8 @@ public class CANTalonHardware extends Hardware<CAN>
 			if (wpiTalon.map(t -> t.getControlMode() == ControlMode.Position).orElse(false))
 			{
 				wpiTalon.ifPresent(t -> t.set(ControlMode.Position, d));
-			} else
+			}
+			else
 			{
 				throw new RuntimeException(
 						"Error! attempted to use position mode after control mode was changed, ensure you are only controlling the talon from one place!");
@@ -303,7 +306,8 @@ public class CANTalonHardware extends Hardware<CAN>
 			if (t.getControlMode() == ControlMode.PercentOutput)
 			{
 				t.set(ControlMode.PercentOutput, d);
-			} else
+			}
+			else
 			{
 				throw new RuntimeException(
 						"Error! attempted to use voltage mode after control mode was changed, ensure you are only controlling the talon from one place!");
@@ -315,8 +319,9 @@ public class CANTalonHardware extends Hardware<CAN>
 	 * sets hard limit on current, ignores checking for peak current before
 	 * activating current limit
 	 * 
-	 * @param talon 
-	 * @param limit the current limit in amps
+	 * @param talon
+	 * @param limit
+	 *                  the current limit in amps
 	 */
 	private static void configMaxCurrent(WPI_TalonSRX talon, int limit)
 	{
@@ -325,6 +330,7 @@ public class CANTalonHardware extends Hardware<CAN>
 		talon.configContinuousCurrentLimit(limit, kTimeoutMs);
 		talon.enableCurrentLimit(true);
 	}
+
 	public void setMaxCurrent(int limit)
 	{
 		wpiTalon.ifPresent((t) -> configMaxCurrent(t, limit));
@@ -338,6 +344,11 @@ public class CANTalonHardware extends Hardware<CAN>
 	public <T> Optional<T> map(Function<WPI_TalonSRX, T> mapFunc)
 	{
 		return wpiTalon.map(mapFunc);
+	}
+
+	protected Optional<WPI_TalonSRX> getTalon()
+	{
+		return wpiTalon;
 	}
 
 	private static void configFollowerMode(WPI_TalonSRX toFollow, WPI_TalonSRX wpiTalon)

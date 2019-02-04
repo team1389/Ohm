@@ -26,8 +26,7 @@ public class CANSparkMaxHardware extends Hardware<CAN>
 	private CAN requestedPort;
 	private Optional<CANSparkMax> revSpark;
 
-	public CANSparkMaxHardware(boolean outInverted, boolean inInverted, boolean idleModeCoast, CAN requestedPort,
-			Registry registry)
+	public CANSparkMaxHardware(boolean outInverted, boolean inInverted, CAN requestedPort, Registry registry)
 	{
 		this.outInverted = outInverted;
 		this.inInverted = inInverted;

@@ -31,7 +31,7 @@ public class MecanumDriveSystem extends DriveSystem {
 		this.yThrottle = yThrottle;
 		this.twist = twist;
 		this.wheels = wheels;
-		this.angle = angle.copy().mapToRange(0, 2 * Math.PI);
+		this.angle = angle.copy().getMappedToRange(0, 2 * Math.PI);
 		this.fieldOriented = toggleFieldOriented;
 	}
 
@@ -44,7 +44,7 @@ public class MecanumDriveSystem extends DriveSystem {
 	@Override
 	public AddList<Watchable> getSubWatchables(AddList<Watchable> arg0) {
 		return arg0.put(xThrottle.getWatchable("x"), yThrottle.getWatchable("y"), twist.getWatchable("theta"), wheels,
-				fieldOriented.getWatchable("trigger"), angle.mapToAngle(Position.class).getWatchable("angle"),
+				fieldOriented.getWatchable("trigger"), angle.getAsAngle(Position.class).getWatchable("angle"),
 				fieldOriented.getWatchable("current yaw"));
 	}
 

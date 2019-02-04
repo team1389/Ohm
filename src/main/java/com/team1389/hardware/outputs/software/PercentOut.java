@@ -10,30 +10,38 @@ import com.team1389.hardware.value_types.Percent;
  * 
  * @author Ari Mindell
  */
-public class PercentOut extends RangeOut<Percent> {
+public class PercentOut extends RangeOut<Percent>
+{
 	/**
-	 * @param out the consumer to pass values to
+	 * @param out
+	 *                the consumer to pass values to
 	 */
-	public PercentOut(ScalarOutput<Percent> out) {
+	public PercentOut(ScalarOutput<Percent> out)
+	{
 		super(out, -1, 1);
 	}
 
 	/**
-	 * @param out the consumer to pass values to
+	 * @param out
+	 *                the consumer to pass values to
 	 */
-	public PercentOut(Consumer<Double> out) {
+	public PercentOut(Consumer<Double> out)
+	{
 		this(ScalarOutput.convert(out));
 	}
 
 	/**
 	 * 
-	 * @param out a stream to convert to a percent stream
+	 * @param out
+	 *                a stream to convert to a percent stream
 	 */
-	public PercentOut(RangeOut<?> out) {
+	public PercentOut(RangeOut<?> out)
+	{
 		this(ScalarOutput.mapToPercent(out.output, out.min, out.max));
 	}
 
-	public PercentOut copy() {
+	public PercentOut copy()
+	{
 		return new PercentOut(output);
 	}
 }

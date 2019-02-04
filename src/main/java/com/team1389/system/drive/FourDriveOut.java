@@ -29,8 +29,8 @@ public class FourDriveOut<T extends Value> implements CompositeWatchable {
 	}
 
 	public DriveOut<T> getAsTank() {
-		RangeOut<T> left = front.left().copy().addFollowers(rear.left());
-		RangeOut<T> right = front.right().copy().addFollowers(rear.right());
+		RangeOut<T> left = front.left().copy().getWithAddedFollowers(rear.left());
+		RangeOut<T> right = front.right().copy().getWithAddedFollowers(rear.right());
 		return new DriveOut<>(left, right);
 	}
 

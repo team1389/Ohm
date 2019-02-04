@@ -33,17 +33,17 @@ public class ControlBoard
 
 	public PercentIn driveYAxis()
 	{
-		return driveController.yAxis().applyDeadband(.075).invert();
+		return driveController.yAxis().getWithDeadband(.075).getInverted();
 	}
 
 	public PercentIn driveXAxis()
 	{
-		return driveController.xAxis().applyDeadband(.075);
+		return driveController.xAxis().getWithDeadband(.075);
 	}
 
 	public PercentIn driveYaw()
 	{
-		return driveController.yaw().applyDeadband(.075);
+		return driveController.yaw().getWithDeadband(.075);
 	}
 
 	public PercentIn driveTrim()
@@ -53,7 +53,7 @@ public class ControlBoard
 
 	public DigitalIn driveThumbBtn()
 	{
-		return driveController.thumbButton().latched();
+		return driveController.thumbButton().getLatched();
 	}
 
 	public DigitalIn driveTriggerBtn()
@@ -61,32 +61,36 @@ public class ControlBoard
 		return driveController.trigger();
 	}
 
-	public PercentIn xLeftDriveY() {
-		return xDriveController.leftStick.yAxis().invert();
+	public PercentIn xLeftDriveY()
+	{
+		return xDriveController.leftStick.yAxis().getInverted();
 	}
 
-	public PercentIn xLeftDriveX() {
+	public PercentIn xLeftDriveX()
+	{
 		return xDriveController.leftStick.xAxis();
 	}
 
-	public PercentIn xRightDriveX() {
+	public PercentIn xRightDriveX()
+	{
 		return xDriveController.rightStick.xAxis();
 	}
 
-	public PercentIn xRightDriveY() {
-		return xDriveController.rightStick.yAxis().invert();
-}
+	public PercentIn xRightDriveY()
+	{
+		return xDriveController.rightStick.yAxis().getInverted();
+	}
+
 	public PercentIn xDriveX()
 	{
 		return xDriveController.rightStick.xAxis();
 	}
 
-
 	public DigitalIn xRightBumper()
 	{
 		return xDriveController.rightBumper();
 	}
-	
+
 	public DigitalIn xLeftBumper()
 	{
 		return xDriveController.leftBumper();
@@ -94,22 +98,22 @@ public class ControlBoard
 
 	public DigitalIn aButton()
 	{
-		return manipController.aButton().latched();
+		return manipController.aButton().getLatched();
 	}
 
 	public DigitalIn yButton()
 	{
-		return manipController.yButton().latched();
+		return manipController.yButton().getLatched();
 	}
 
 	public DigitalIn xButton()
 	{
-		return manipController.xButton().latched();
+		return manipController.xButton().getLatched();
 	}
 
 	public DigitalIn bButton()
 	{
-		return manipController.bButton().latched();
+		return manipController.bButton().getLatched();
 	}
 
 	public PercentIn leftTrigger()
@@ -154,27 +158,27 @@ public class ControlBoard
 
 	public DigitalIn downDPad()
 	{
-		return manipController.downArrow().latched();
+		return manipController.downArrow().getLatched();
 	}
-	
+
 	public DigitalIn leftDPad()
 	{
-		return manipController.leftArrow().latched();
+		return manipController.leftArrow().getLatched();
 	}
-	
+
 	public DigitalIn rightDPad()
 	{
-		return manipController.rightArrow().latched();
+		return manipController.rightArrow().getLatched();
 	}
 
 	public DigitalIn backButton()
 	{
-		return manipController.backButton().latched();
+		return manipController.backButton().getLatched();
 	}
 
 	public DigitalIn upDPad()
 	{
-		return manipController.upArrow().latched();
+		return manipController.upArrow().getLatched();
 	}
 
 	public PercentIn rightTrigger()
@@ -184,8 +188,7 @@ public class ControlBoard
 
 	public DigitalIn startButton()
 	{
-		return manipController.startButton().latched();
+		return manipController.startButton().getLatched();
 	}
-
 
 }

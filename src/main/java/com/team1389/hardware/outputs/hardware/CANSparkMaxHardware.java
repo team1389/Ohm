@@ -25,14 +25,12 @@ public class CANSparkMaxHardware extends Hardware<CAN>
 	private boolean inInverted;
 	private CAN requestedPort;
 	private Optional<CANSparkMax> revSpark;
-	private boolean idleModeCoast;
 
 	public CANSparkMaxHardware(boolean outInverted, boolean inInverted, boolean idleModeCoast, CAN requestedPort,
 			Registry registry)
 	{
 		this.outInverted = outInverted;
 		this.inInverted = inInverted;
-		this.idleModeCoast = idleModeCoast;
 		this.requestedPort = requestedPort;
 		attachHardware(requestedPort, registry);
 	}
@@ -85,14 +83,7 @@ public class CANSparkMaxHardware extends Hardware<CAN>
 		spark = new CANSparkMax(requestedPort.index(), MotorType.kBrushless);
 		spark.setCANTimeout(kTimeoutMs);
 		spark.setInverted(outInverted);
-		if (idleModeCoast)
-		{
-			spark.setIdleMode(IdleMode.kCoast);
-		}
-		else
-		{
-			spark.setIdleMode(IdleMode.kBrake);
-		}
+		spark.setIdleMode(IdleMode.kCoast);
 		revSpark = Optional.of(spark);
 	}
 

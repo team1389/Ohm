@@ -81,11 +81,6 @@ public class ControlBoard
 		return xDriveController.rightStick.yAxis().getInverted();
 	}
 
-	public PercentIn xDriveX()
-	{
-		return xDriveController.rightStick.xAxis();
-	}
-
 	public DigitalIn xRightBumper()
 	{
 		return xDriveController.rightBumper();

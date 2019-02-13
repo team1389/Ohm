@@ -91,6 +91,26 @@ public class ControlBoard
 		return xDriveController.leftBumper();
 	}
 
+	public DigitalIn driveAButton()
+	{
+		return xDriveController.aButton().getLatched();
+	}
+
+	public DigitalIn driveBButton() 
+	{
+		return xDriveController.bButton().getLatched();
+	}
+
+	public DigitalIn driveXButton() 
+	{
+		return xDriveController.xButton().getLatched();
+	}
+
+	public DigitalIn driveYButton() 
+	{
+		return xDriveController.yButton().getLatched();
+	}
+
 	public DigitalIn aButton()
 	{
 		return manipController.aButton().getLatched();

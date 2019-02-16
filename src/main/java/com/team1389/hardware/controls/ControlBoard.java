@@ -96,17 +96,17 @@ public class ControlBoard
 		return xDriveController.aButton().getLatched();
 	}
 
-	public DigitalIn driveBButton() 
+	public DigitalIn driveBButton()
 	{
 		return xDriveController.bButton().getLatched();
 	}
 
-	public DigitalIn driveXButton() 
+	public DigitalIn driveXButton()
 	{
 		return xDriveController.xButton().getLatched();
 	}
 
-	public DigitalIn driveYButton() 
+	public DigitalIn driveYButton()
 	{
 		return xDriveController.yButton().getLatched();
 	}

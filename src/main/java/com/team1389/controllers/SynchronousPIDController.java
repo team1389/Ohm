@@ -148,6 +148,15 @@ public class SynchronousPIDController<O extends Value, I extends PIDTunableValue
 		});
 	}
 
+	public Command getPIDToCommand(double setpoint, double tolerance)
+	{
+		this.setSetpoint(setpoint);
+		return getPIDToCommand(() ->
+		{
+			return onTargetStable(tolerance);
+		});
+	}
+
 	/**
 	 * @param exitCondition
 	 *                          boolean stream that determines when to halt PID

@@ -45,6 +45,7 @@ public class SolenoidHardware extends Hardware<PCM>
 	public SolenoidHardware(CAN moduleID, PCM requestedPort, Registry registry)
 	{
 		this.moduleID = moduleID;
+		attachHardware(requestedPort, registry);
 	}
 
 	private Optional<Solenoid> wpiSolenoid;

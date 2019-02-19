@@ -60,6 +60,16 @@ public class ControlBoard
 		return xDriveController.leftBumper();
 	}
 
+	public DigitalIn driveStartButton()
+	{
+		return xDriveController.startButton();
+	}
+
+	public DigitalIn driveBackButton()
+	{
+		return xDriveController.backButton();
+	}
+
 	public DigitalIn driveAButton()
 	{
 		return xDriveController.aButton().getLatched();

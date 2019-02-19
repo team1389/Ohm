@@ -22,14 +22,12 @@ public class CANSparkMaxHardware extends Hardware<CAN>
 	public static final int kTimeoutMs = 10;
 
 	private boolean outInverted;
-	private boolean inInverted;
 	private CAN requestedPort;
 	private Optional<CANSparkMax> revSpark;
 
-	public CANSparkMaxHardware(boolean outInverted, boolean inInverted, CAN requestedPort, Registry registry)
+	public CANSparkMaxHardware(boolean outInverted, CAN requestedPort, Registry registry)
 	{
 		this.outInverted = outInverted;
-		this.inInverted = inInverted;
 		this.requestedPort = requestedPort;
 		attachHardware(requestedPort, registry);
 	}
@@ -63,11 +61,6 @@ public class CANSparkMaxHardware extends Hardware<CAN>
 	{
 		// Min/Max in RangeIn don't matter. That's why the max is set to one.
 		// Doesn't cap off values
-		if (inInverted)
-		{
-			return new RangeIn<>(Position.class,
-					() -> revSpark.map(spark -> -spark.getEncoder().getPosition()).orElse(0.0), 0, 1);
-		}
 		return new RangeIn<>(Position.class, () -> revSpark.map(spark -> spark.getEncoder().getPosition()).orElse(0.0),
 				0, 1);
 	}
@@ -100,11 +93,5 @@ public class CANSparkMaxHardware extends Hardware<CAN>
 	{
 		return "Spark MAX";
 	}
-
-	/**
-	 * Stores all configuration options for SparkMax. Expects to be passed in to
-	 * constructor of CANSparkMaxHardware
-	 * 
-	 */
 
 }

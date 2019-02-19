@@ -27,66 +27,35 @@ public class ControlBoard
 	{
 	}
 
-	private final LogitechExtreme3D driveController = new LogitechExtreme3D(0);
 	private final XBoxController manipController = new XBoxController(1);
 	private final XBoxController xDriveController = new XBoxController(2);
 
-	public PercentIn driveYAxis()
-	{
-		return driveController.yAxis().getWithDeadband(.075).getInverted();
-	}
-
-	public PercentIn driveXAxis()
-	{
-		return driveController.xAxis().getWithDeadband(.075);
-	}
-
-	public PercentIn driveYaw()
-	{
-		return driveController.yaw().getWithDeadband(.075);
-	}
-
-	public PercentIn driveTrim()
-	{
-		return driveController.throttle();
-	}
-
-	public DigitalIn driveThumbBtn()
-	{
-		return driveController.thumbButton().getLatched();
-	}
-
-	public DigitalIn driveTriggerBtn()
-	{
-		return driveController.trigger();
-	}
-
-	public PercentIn xLeftDriveY()
+	public PercentIn driveLeftY()
 	{
 		return xDriveController.leftStick.yAxis().getInverted();
 	}
 
-	public PercentIn xLeftDriveX()
+	public PercentIn driveLeftX()
 	{
 		return xDriveController.leftStick.xAxis();
 	}
 
-	public PercentIn xRightDriveX()
+	public PercentIn driveRightX()
 	{
 		return xDriveController.rightStick.xAxis();
 	}
 
-	public PercentIn xRightDriveY()
+	public PercentIn driveRightY()
 	{
 		return xDriveController.rightStick.yAxis().getInverted();
 	}
 
-	public DigitalIn xRightBumper()
+	public DigitalIn driveRightBumper()
 	{
 		return xDriveController.rightBumper();
 	}
 
-	public DigitalIn xLeftBumper()
+	public DigitalIn driveLeftBumper()
 	{
 		return xDriveController.leftBumper();
 	}

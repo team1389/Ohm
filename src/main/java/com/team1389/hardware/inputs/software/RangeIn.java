@@ -20,7 +20,7 @@ import com.team1389.watch.info.NumberInfo;
  * @author amind
  *
  * @param <T>
- *            The type that the doubles in the stream represent
+ *                The type that the doubles in the stream represent
  */
 public class RangeIn<T extends Value>
 {
@@ -378,13 +378,14 @@ public class RangeIn<T extends Value>
 		return cast(newStream);
 	}
 
+	// TODO: reimplement this so we aren't just calling getSummedInputs().
+	// Basically we're getting infinite recursion
 	public <R extends RangeIn<T>> R getOffset(double val)
 	{
-		ScalarInput<T> newInput = () -> input.get() + val;
-		RangeIn<T> newStream = this.copy();
-		newStream.input = newInput;
-		newStream.addOperation(d -> " -> sum[" + input.get() + "+" + val + "] = " + d);
-		return cast(newStream);
+		RangeIn<T> offsetStream = this.copy();
+		offsetStream.input = () -> val;
+		return getSummedInputs(offsetStream);
+
 	}
 
 	public <R extends RangeIn<T>> R getAdjustedOffsetToMatch(double makeCurrentVal)

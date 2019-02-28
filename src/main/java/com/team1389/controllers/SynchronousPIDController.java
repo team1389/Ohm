@@ -20,9 +20,9 @@ import com.team1389.watch.input.listener.NumberInput;
  * @author amind
  *
  * @param <O>
- *            the value type of the output stream
+ *                the value type of the output stream
  * @param <I>
- *            the value type of the input stream
+ *                the value type of the input stream
  */
 public class SynchronousPIDController<O extends Value, I extends PIDTunableValue> extends SynchronousPID
 {
@@ -166,11 +166,21 @@ public class SynchronousPIDController<O extends Value, I extends PIDTunableValue
 	 */
 	public Command getPIDToCommand(BinaryInput exitCondition)
 	{
-		return CommandUtil.createCommand(() ->
+		return new Command()
 		{
-			update();
-			return exitCondition.get();
-		});
+			@Override
+			protected boolean execute()
+			{
+				update();
+				return exitCondition.get();
+			}
+
+			@Override
+			protected void done()
+			{
+				output.set(0);
+			}
+		};
 	}
 
 	/**

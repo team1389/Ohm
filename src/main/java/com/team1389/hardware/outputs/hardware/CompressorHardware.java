@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.team1389.hardware.Hardware;
 import com.team1389.hardware.inputs.software.DigitalIn;
 import com.team1389.hardware.inputs.software.RangeIn;
+import com.team1389.hardware.outputs.software.DigitalOut;
 import com.team1389.hardware.registry.Registry;
 import com.team1389.hardware.registry.port_types.CAN;
 import com.team1389.hardware.value_types.Value;
@@ -33,13 +34,18 @@ public class CompressorHardware extends Hardware<CAN>
     public RangeIn<Value> getCurrent()
     {
         return new RangeIn<Value>(Value.class,
-                () -> wpiCompressor.map(compressor -> compressor.getCompressorCurrent()).orElse(0.0), 0,
+                () -> wpiCompressor.map(compressor -> compressor.getCompressorCurrent()).orElse(-1.0), 0,
                 MAX_CURRENT_IN_AMPS);
     }
 
     public DigitalIn isEnabled()
     {
         return new DigitalIn(() -> wpiCompressor.map(compressor -> compressor.enabled()).orElse(false));
+    }
+
+    public DigitalOut toggleCompressor()
+    {
+        return new DigitalOut(run -> wpiCompressor.ifPresent(compressor -> compressor.setClosedLoopControl(run)));
     }
 
     @Override

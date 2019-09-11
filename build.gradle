@@ -1,54 +1,54 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2019.1.1"
+    id "edu.wpi.first.GradleRIO" version "2019.4.1"
     id "java-library"
     id "co.riiid.gradle" version "0.4.2"
-    id  "maven"
+    id "maven"
 }
-version  = '0.1.0'
+version = '0.1.0'
 
-ext{
-	libName = 'ohm'
+ext {
+    libName = 'ohm'
 }
 dependencies {
     compile wpi.deps.wpilib()
     compile wpi.deps.vendor.java()
-	implementation fileTree(dir: 'lib', include: '*.jar')
+    implementation fileTree(dir: 'lib', include: '*.jar')
 }
 task libJar(type: Jar) {
-	classifier = 'lib'
-	baseName = libName
-	manifest {
-		attributes('Implementation-Title' : libName,'Implementation-Version': project.version)
-	}
+    classifier = 'lib'
+    baseName = libName
+    manifest {
+        attributes('Implementation-Title': libName, 'Implementation-Version': project.version)
+    }
 }
-artifacts{
-	archives libJar
+artifacts {
+    archives libJar
 }
 
 install {
-	repositories.mavenInstaller {
-		pom.project{
-			licenses{
-				license{
-					name 'The Apache Software License, Version 2.0'
-					url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-					distribution 'repo'
-				}
-			}
-		}
-	}
-	
+    repositories.mavenInstaller {
+        pom.project {
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+        }
+    }
+
 }
 github {
-	owner = 'ohmSuite'
-	token = 'b28e82c4ce5d290182a64c9ef4543975bfd0f4d7 '
-	repo = 'ohm'
-	tagName = project.version
-	targetCommitish = 'master'
-	name = 'v'+project.version
-	
-	assets = [
-		project.artifacts
-	]
+    owner = 'ohmSuite'
+    token = 'b28e82c4ce5d290182a64c9ef4543975bfd0f4d7 '
+    repo = 'ohm'
+    tagName = project.version
+    targetCommitish = 'master'
+    name = 'v' + project.version
+
+    assets = [
+            project.artifacts
+    ]
 }
